@@ -33,9 +33,189 @@
                             <i class="bi bi-house-door"></i> Home
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="search.html">
+                            <i class="bi bi-search"></i> Search Flights
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="booking.html">
+                            <i class="bi bi-ticket-perforated"></i> Book Flight
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="reservations.html">
+                            <i class="bi bi-calendar-check"></i> My Reservations
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-lin dropdown-toggle" href="#" role="button data-bs-toggle=dropdown" aria-expanded="false">
+                            <i class="bi bi-gear"></i> Admin Panel
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="admin-dashboard.html"> Dashboard </a></li>
+                            <li><a class="dropdown-item" href="admin-flights.html"> Manage Flights </a></li>
+                            <li><a class="dropdown-item" href="admin-users.html"> Manage Users </a></li>
+                            <li><a class="dropdown-item" href="admin-reservations.html"> Manage Reservations </a></li>
+                        </ul>
+                    </li>
                 </ul>
-            </div>
+                <ul class="navbar-nav">
+                    <li class="nav=item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button data-bs-toggle=dropdown" aria-expanded="false">
+                            <img src="https://via.placeholder.com/32" alt="User" class="rounded-circle me-2" width="32" height="32">
+                            User1
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person-circle"></i> Profile </a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Settings </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right"></i> Logout </a></li>
+                        </ul>
+                    </li>
+                </ul>
+             </div>
         </div>
      </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Banner -->
+         <section class="hero-banner position-relative overflow-hidden" style="min-height: 70vh; background: linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)), url('https://via.placeholder.com/1920x1080?text=Airplane+Background'); background-size: cover; background-position: center;">
+            <div class="container text-center text-white d-flex flex-column justify-content-center align-items-center h-100">
+                <h1 class="display-2 fw-bold mb-4"> Fly to your Dreams with Lorem ipsum</h1>
+                <p class="lead fs-3 mb-5">Experience world-class service at unbeatable prices.</p>
+                <a href="search.html" class="btn btn-warning btn-lg px-5 py-3 fw-bold">
+                    <i class="bi bi-airplane"></i> Book your Flights Now!
+                </a>
+            </div>
+         </section>
+
+        <!-- Quick Flight Search Widget -->
+        <section class="quick-search py-5 bg-light">
+            <div class="container">
+                <div class="card shadow-lg border-0">
+                    <div class="card-body p-4">
+                        <form class="row g-3 align-items-end">
+                            <div class="col-mid-3">
+                                <label for="origin" class="form-label fw-semibold"> From </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="bi bi-geo-alt"></i></span>
+                                    <input type="text" class="form-control" id="origin" placeholder="City or Airport" list="airports">
+                                    <datalist id="airports">
+                                        <option value="Clark (CRK)">
+                                        <option value="Manila (MNL)">
+                                        <option value="Kalibo (KLO)">
+                                        <option value="Cebu (CEB)">
+                                        <option value="Davao (DVO)">
+                                    </datalist>
+                                </div>
+                            </div>
+                            <div class="col-mid-3">
+                                <label for="destination" class="form-label fw-semibold"> To </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="bi bi-geo-alt-fill"></i></span>
+                                    <input type="text" class="form-control" id="destination" placeholder="City or Airport" list="airports">
+                                </div>
+                            </div>
+                            <div class="col-mid-3">
+                                <label for="departure" class="form-label fw-semibold"> Departure Date </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="bi bi-calendar3"></i></span>
+                                    <input type="date" class="form-control" id="departure">
+                                </div>
+                            </div>
+                            <div class="col-mid-3">
+                                <button type="button" class="btn btn-primary w-100 py-2">
+                                    <i class="bi bi-search"></i> Search Flights
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Promotional Carousel -->
+         <section class="promotional-carousel py-5">
+            <div class="container">
+                <div id="promoCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#promoCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                        <button type="button" data-bs-target="#promoCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                        <button type="button" data-bs-target="#promoCarousel" data-bs-slide-to="2" arial-label="Slide 3"></button>
+                    </div>
+                    <div class="carousel-inner">
+                        <div class="carousel-item active" data-bs-interval="5000">
+                            <div class="card border-0 rounded-4 overflow-hidden">
+                                <img src="https://via.placeholder.com/1200x400?text=Promo+1:+50%25+Off+on+Business+Class" class="d-block w-100" alt="Promo 1">
+                                <div class="card-img-overlay d-flex align-items-center justift-content-center bg-dark bg-opacity-50">
+                                    <div class="text-center text-white">
+                                        <h2 class="diplay-4 fw-bold"> 50% Off Business Class </h2>
+                                        <p class="lead">Book now and fly in luxury. </p>
+                                        <a href="search.html" class="btn btn-warning btn-log">View Offer </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="carousel-item" data-bs-interval="5000">
+                           <div class="card border-0 rounded-4 overflow-hidden">
+                            <img src="https://via.placeholder.com/1200x400?text=Promo+2:+Free+Baggage+Upgrade" class="d-block w-100" alt="Promo 2">
+                            <div class="card-img-overlay d-flex align-items-center justify-content-center bg-dark bg-opacity-50">
+                                <div class="text-center text-white">
+                                    <h2 class="display-4 fw-bold"> Free Baggage Upgrade </h2>
+                                    <p class="lead"> Extra luggage for all international flights. </p>
+                                    <a href="search.html" class="btn btn-warning btn-lg"> View Offer </a>
+                                </div>
+                            </div>
+                           </div> 
+                        </div>
+                        <div class="carousel-item" data-bs-interval="5000">
+                            <div class="card border-0 rounded-4 overflow-hidden">
+                                <img src="https://via.placeholder.com/1200x400?text=Promo+3:+Miles+Bonus+Campaign" class="d-block w-100" alt="Promo 3">
+                                <div class="card=img-overlay d-flex align-items-center justify-content-center bg-dark bg-opacity-50">
+                                    <div class="text-center text-white">
+                                        <h2 class="display-4 fw-bold"> 2x Miles Bonus </h2>
+                                        <p class="lead"> Earn double miles on all domestic routes. </p>
+                                        <a href="search.html" class="btn btn-warning btn-lg"> View Offer </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#promoCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon bg-dark rounded-cicle p-4" aria-hidden="true"></span>
+                        <span class="visually-hidden"> Previous </span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#promoCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon bg-dark rounded-circle p-4" aria-hidden="true"></span>
+                        <span class="visually-hidden"> Next </span>
+                    </button>
+                </div>
+            </div>
+         </section>
+
+        <!-- Flight Statistics Cards -->
+        <section class="flight-stats py-5 bg-light">
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="card-body text center">
+                                <div class="icon-box bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justfy-content-center mb-3" style="width: 80px; height: 80px;">
+                                    <i class="bi bi-airplane-engines fs-1 text-primary"></i>
+                                </div>
+                                <h3 class="display-4 fw-bold text-primary">150+</h3>
+                                <p class="fs-5 text-muted mb-0"> Available Flights Daily </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 </body>
 </html>
