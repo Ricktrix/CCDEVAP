@@ -201,7 +201,7 @@
                 <div class="row g-4">
                     <div class="col-md-4">
                         <div class="card h-100 shadow-sm border-0">
-                            <div class="card-body text center">
+                            <div class="card-body text-center">
                                 <div class="icon-box bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justfy-content-center mb-3" style="width: 80px; height: 80px;">
                                     <i class="bi bi-airplane-engines fs-1 text-primary"></i>
                                 </div>
@@ -211,11 +211,226 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="card-body text-center">
+                                <div class="icon-box success bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                    <i class="bi bi-people fs-1 text-success"></i>
+                                </div>
+                                <h3 class="display-4 fw-bold text-success"> 12.5k </h3>
+                                <p class="fs-5 text-muted mb-0"> Active Bookings </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-mid-4">
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="card-body text-center">
+                                <div class="icon-box warning bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                    <i class="bi bi-geo-alt fs-1 text-warning"></i>
+                                </div>
+                                <h3 class="display-4 fw-bold text-warning"> 45 </h3>
+                                <p class="fs-5 text-muted mb-0"> Popular Destinations </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Suggested Flights section -->
+        <section class="suggested-flights py-5">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold mb-0"> Suggested Flights </h2>
+                    <div class="d-flex gap-3">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="bi bi-funnel"></i></span>
+                            <select class="form-select" id="destinationFilter">
+                                <option selected> All Destinations </option>
+                                <option value="1"> Clark </option>
+                                <option value="2"> Kalibo </option>
+                                <option value="3"> Cebu </option>
+                                <option value="4"> Davao </option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control" placeholder="Search auto-suggestion...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Flight Card 1 -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100 shadow-sm border-0 flight-card">
+                            <img src="https://via.placeholder.com/300x200?text=Clark" class="card-img-top" alt="Destination">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h5 class="card-title mb-0"> Clark </h5>
+                                        <small class="text-muted"> CRK </small>
+                                    </div>
+                                    <span class="badge bg-sucess"> Best Seller </span>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mt-3">
+                                    <div>
+                                        <small class="text-muted d-block"> From </small>
+                                        <span class="fw-bold text-primary"> $450 </span>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-primary btn-sm"> Book </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flight Card 2 -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100 shadow-sm border-0 flight-card">
+                            <img src="https://via.placeholder.com/300x200?text=Kalibo" class="card-img-top" alt="Destination">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h5 class="card-title mb-0"> Kalibo </h5>
+                                        <small class="text-muted"> KLO </small>
+                                    </div>
+                                    <span class="badge bg-warning text-dark"> Limited Seats </span>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mt-3">
+                                    <div>
+                                        <small class="text-muted d-block"> From </small>
+                                        <span class="fw-bold text-primary"> $620 </span>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-primary btn-sm"> Book </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flight Card 3 -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100 shadow-sm border-0 flight-card">
+                            <img src="https://via.placeholder.com/300x200?text=Cebu" class="card-img-top" alt="Destination">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h5 class="card-title mb-0"> Cebu </h5>
+                                        <small class="text-muted"> CEB </small>
+                                    </div>
+                                    <span class="badge bg-info text-dark"> New Route </span>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mt-3">
+                                    <div>
+                                        <small class="text-muted d-block"> From </small>
+                                        <span class="fw-bold text-primary"> $890 </span>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-primary btn-sm"> Book </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flight Card 4 -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100 shadow-sm border-0 flight-card">
+                            <img src="https://via.placeholder.com/300x200?text=Davao" class="card-img-top" alt="Destination">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h5 class="card-title mb-0"> Davao </h5>
+                                        <small class="text-muted"> DVO </small>
+                                    </div>
+                                    <span class="badge bg-primary"> Popular </span>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mt-3">
+                                    <div>
+                                        <small class="text-muted d-block"> From </small>
+                                        <span class="fw-bold text-primary"> $550 </span>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-primary btn-sm"> Book </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
     </main>
+
+    <!-- Global Footer -->
+    <footer class="bg-dark text-white pt-5 pb-4">
+        <div class="container">
+            <div class="row g-4">
+                <!-- Logo and Description -->
+                <div class="col-lg-4">
+                    <h4 class="fw-bold mb-3">
+                        <i class="bi bi-snow"></i> Lorem Ipsum
+                    </h4>
+                    <p class="text-light mb-3"> Your trusted partner for comfortable and affordable air travel. Connection the world, one flight at a time. </p>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-white fs-4"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-white fs-4"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="text-white fs-4"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-white fs-4"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+
+                <!-- Quick links -->
+                <div class="col-lg-2">
+                    <h5 class="fw-bold mb-3"> Quick Links </h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="index.html" class="text-light text-decoration-none"> Home </a></li>
+                        <li class="mb-2"><a href="search.html" class="text-light text-decoration-none"> Search Flights </a></li>
+                        <li class="mb-2"><a href="booking.html" class="text-light text-decoration-none"> Book Flight </a></li>
+                        <li class="mb-2"><a href="reservation.html" class="text-light text-decoration-none"> My Reservations </a></li>
+                        <li class="mb-2"><a href="profile.html" class="text-light text-decoration-none"> Profile </a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="col-lg-3">
+                    <h5 class="fw-bold mb-3"> Contact Us </h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-geo-alt me-2"></i> Taft Ave, Malate, Manila City </li>
+                        <li class="mb-2"><i class="bi bi-telephone me-2"></i> +1 (800) 555-LOREM </li>
+                        <li class="mb-2"><i class="bi bi-envelope me-2"></i> support@loremipsum.com </li>
+                        <li class="mb-2"><i class="bi bi-clock me-2"></i> 24/7 Customer Service </li>
+                    </ul>
+                </div>
+
+                <!-- Newsletter -->
+                <div class="col-lg-3">
+                    <h5 class="fw-bold mb-3"> Newsletter </h5>
+                    <p class="text-light mb-3"> Subscribe to get exclusive offers and updates. </p>
+                    <form class="d-flex">
+                        <input type="email" class="form-control me-2" placeholder="Enter your email">
+                        <button type="button" class="btn btn-primary"><i class="bi bi-send"></i></button>
+                    </form>
+    
+                </div>
+            </div>
+
+            <hr class="my-4 border-light">
+
+            <!-- Copyright -->
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="text-light mb-0">&copy; 2026 Lorem Ipsum. All rights reserved. </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-light text-decoration-none me-3"> Privacy Policy </a>
+                    <a href="#" class="text-light text-decoration-none me-3"> Terms of Service </a>
+                    <a href="#" class="tect-light text-decoration-none"> Cookie Policy </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- Bootstrap 5 JS CDN -->
+    <script src="https://cd.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- External JavaScript -->
+    <script src="js/script.js"></script>
+    
 </body>
 </html>
