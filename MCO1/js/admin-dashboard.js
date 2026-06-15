@@ -458,4 +458,4 @@ $(document).ready(function () {
     // Run initialization
     initializeDashboard();
 
-})
+});
