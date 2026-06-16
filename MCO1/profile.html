@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placeholder | My Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Global Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-4" href="index.html">
+                <i class="bi bi-snow"></i> Placeholder
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="search.html"><i class="bi bi-search"></i> Search Flights</a></li>
+                    <li class="nav-item"><a class="nav-link" href="booking.html"><i class="bi bi-ticket-perforated"></i> Book Flight</a></li>
+                    <li class="nav-item"><a class="nav-link" href="reservations.html"><i class="bi bi-calendar-check"></i> My Reservations</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-gear"></i> Admin Panel
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="admin-dashboard.html"> Dashboard </a></li>
+                            <li><a class="dropdown-item" href="admin-flights.html"> Manage Flights </a></li>
+                            <li><a class="dropdown-item" href="admin-users.html"> Manage Users </a></li>
+                            <li><a class="dropdown-item" href="admin-reservations.html"> Manage Reservations </a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center active" href="#" role="button" data-bs-toggle="dropdown">
+                            <img src="https://via.placeholder.com/32" alt="User" class="rounded-circle me-2" width="32" height="32">
+                            Placeholder
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person-circle"></i> Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="bg-light min-vh-100 py-4">
+        <div class="container">
+
+            <!-- Page Header -->
+            <div class="mb-4">
+                <h2 class="fw-bold mb-0"> My Profile </h2>
+                <p class="text-muted mb-0"> Manage your personal information and preferences. </p>
+            </div>
+
+            <div class="row g-4">
+
+                <!-- Left: Avatar + Nav tabs -->
+                <div class="col-lg-3">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body text-center p-4">
+                            <div class="avatar-upload mx-auto mb-3" id="avatarUpload">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <input type="file" id="avatarInput" accept="image/*" class="d-none">
+                            <h5 class="fw-bold mb-0"> Placeholder </h5>
+                            <p class="text-muted small mb-3"> example@email.com </p>
+                            <span class="badge bg-primary"> Frequent Flyer </span>
+                        </div>
+                        <div class="list-group list-group-flush" id="profileTabsList">
+                            <a href="#" class="list-group-item list-group-item-action active" data-tab="personal">
+                                <i class="bi bi-person-fill me-2"></i> Personal Info
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" data-tab="passengers">
+                                <i class="bi bi-people-fill me-2"></i> Saved Passengers
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" data-tab="payment">
+                                <i class="bi bi-credit-card-fill me-2"></i> Payment Methods
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" data-tab="notifications">
+                                <i class="bi bi-bell-fill me-2"></i> Notifications
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" data-tab="history">
+                                <i class="bi bi-clock-history me-2"></i> Travel History
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" data-tab="security">
+                                <i class="bi bi-shield-lock-fill me-2"></i> Security
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Tab content panels -->
+                <div class="col-lg-9">
+
+                    <!-- Personal Info -->
+                    <div class="card shadow-sm border-0 profile-tab-panel" id="tab-personal">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold mb-0">
+                                <i class="bi bi-person-fill text-primary me-2"></i> Personal Information
+                            </h5>
+                            <button class="btn btn-sm btn-outline-primary" id="editPersonalBtn">
+                                <i class="bi bi-pencil me-1"></i> Edit
+                            </button>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row g-3" id="personalFields">
+                                <!-- Populated by JS -->
+                            </div>
+                            <div class="mt-3 d-none" id="personalActions">
+                                <button class="btn btn-primary me-2" id="savePersonalBtn">
+                                    <i class="bi bi-save me-1"></i> Save Changes
+                                </button>
+                                <button class="btn btn-outline-secondary" id="cancelPersonalBtn"> Cancel </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Saved Passengers -->
+                    <div class="card shadow-sm border-0 profile-tab-panel d-none" id="tab-passengers">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold mb-0">
+                                <i class="bi bi-people-fill text-primary me-2"></i> Saved Passengers
+                            </h5>
+                            <button class="btn btn-sm btn-primary" id="addPassengerBtn">
+                                <i class="bi bi-plus-circle me-1"></i> Add Passenger
+                            </button>
+                        </div>
+                        <div class="card-body p-4" id="savedPassengersList">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div class="card shadow-sm border-0 profile-tab-panel d-none" id="tab-payment">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold mb-0">
+                                <i class="bi bi-credit-card-fill text-primary me-2"></i> Payment Methods
+                            </h5>
+                            <button class="btn btn-sm btn-primary" id="addCardBtn">
+                                <i class="bi bi-plus-circle me-1"></i> Add Card
+                            </button>
+                        </div>
+                        <div class="card-body p-4" id="paymentMethodsList">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Notifications -->
+                    <div class="card shadow-sm border-0 profile-tab-panel d-none" id="tab-notifications">
+                        <div class="card-header bg-white">
+                            <h5 class="fw-bold mb-0">
+                                <i class="bi bi-bell-fill text-primary me-2"></i> Notification Preferences
+                            </h5>
+                        </div>
+                        <div class="card-body p-4" id="notificationPrefs">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Travel History -->
+                    <div class="card shadow-sm border-0 profile-tab-panel d-none" id="tab-history">
+                        <div class="card-header bg-white">
+                            <h5 class="fw-bold mb-0">
+                                <i class="bi bi-clock-history text-primary me-2"></i> Travel History
+                            </h5>
+                        </div>
+                        <div class="card-body p-0" id="travelHistoryTable">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Security -->
+                    <div class="card shadow-sm border-0 profile-tab-panel d-none" id="tab-security">
+                        <div class="card-header bg-white">
+                            <h5 class="fw-bold mb-0">
+                                <i class="bi bi-shield-lock-fill text-primary me-2"></i> Security Settings
+                            </h5>
+                        </div>
+                        <div class="card-body p-4" id="securityPanel">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Passenger Modal -->
+    <div class="modal fade" id="addPassengerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-person-plus-fill me-2"></i> Add Saved Passenger
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small"> Full Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="apName" placeholder="Full name">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small"> Relationship </label>
+                            <select class="form-select" id="apRelation">
+                                <option> Spouse </option>
+                                <option> Child </option>
+                                <option> Parent </option>
+                                <option> Sibling </option>
+                                <option> Friend </option>
+                                <option> Other </option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small"> Passport Number </label>
+                            <input type="text" class="form-control" id="apPassport" placeholder="e.g. P1234567A">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small"> Nationality </label>
+                            <select class="form-select" id="apNationality">
+                                <option> Filipino </option>
+                                <option> American </option>
+                                <option> Japanese </option>
+                                <option> Other </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal"> Cancel </button>
+                    <button class="btn btn-primary" id="savePassengerBtn">
+                        <i class="bi bi-check-circle me-1"></i> Save Passenger
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 1100;"></div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="position-fixed top-50 start-50 translate-middle" style="z-index: 9999; display: none;">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden"> Loading... </span>
+        </div>
+    </div>
+
+    <!-- Global Footer -->
+    <footer class="bg-dark text-white pt-5 pb-4">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <h4 class="fw-bold mb-3"><i class="bi bi-snow"></i> Placeholder</h4>
+                    <p class="text-light mb-3"> Your trusted partner for comfortable and affordable air travel. </p>
+                </div>
+                <div class="col-2">
+                    <h5 class="fw-bold mb-3"> Quick Links </h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="index.html" class="text-light text-decoration-none"> Home </a></li>
+                        <li class="mb-2"><a href="search.html" class="text-light text-decoration-none"> Search Flights </a></li>
+                        <li class="mb-2"><a href="booking.html" class="text-light text-decoration-none"> Book Flight </a></li>
+                        <li class="mb-2"><a href="reservations.html" class="text-light text-decoration-none"> My Reservations </a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3">
+                    <h5 class="fw-bold mb-3"> Contact Us </h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-geo-alt me-2"></i> Taft Ave., Malate, Manila City </li>
+                        <li class="mb-2"><i class="bi bi-telephone me-2"></i> +63 (2) 8555-SKY </li>
+                        <li class="mb-2"><i class="bi bi-envelope me-2"></i> support@email.com </li>
+                    </ul>
+                </div>
+                <div class="col-lg-3">
+                    <h5 class="fw-bold mb-3"> Newsletter </h5>
+                    <div class="d-flex">
+                        <input type="email" class="form-control me-2" placeholder="Enter email">
+                        <button type="button" class="btn btn-primary"><i class="bi bi-send"></i></button>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4 border-light">
+            <p class="text-light mb-0"> &copy; Placeholder. All rights reserved. </p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/profile.js"></script>
+</body>
+</html>
