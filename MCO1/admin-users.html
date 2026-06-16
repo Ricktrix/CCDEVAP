@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placeholder | Admin: Users</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Global Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand fw-bold fs-4" href="index.html">
+                <i class="bi bi-airplane-fill"></i> Placeholder
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="search.html"><i class="bi bi-search"></i> Search Flights</a></li>
+                    <li class="nav-item"><a class="nav-link" href="booking.html"><i class="bi bi-ticket-perforated"></i> Book Flight</a></li>
+                    <li class="nav-item"><a class="nav-link" href="reservations.html"><i class="bi bi-calendar-check"></i> My Reservations</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-gear"></i> Admin Panel
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="admin-dashboard.html"> Dashboard </a></li>
+                            <li><a class="dropdown-item" href="admin-flights.html"> Manage Flights </a></li>
+                            <li><a class="dropdown-item" href="admin-users.html"> Manage Users </a></li>
+                            <li><a class="dropdown-item" href="admin-reservations.html"> Manage Reservations </a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                            <img src="https://via.placeholder.com/32" alt="User" class="rounded-circle me-2" width="32" height="32">
+                            Admin
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person-circle"></i> Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Admin Layout -->
+    <div class="d-flex" style="min-height: calc(100vh - 56px);">
+
+        <!-- Sidebar -->
+        <nav class="admin-sidebar d-none d-md-block py-3">
+            <div class="px-3 mb-2 small text-muted text-uppercase fw-semibold"> Menu </div>
+            <ul class="nav flex-column px-2">
+                <li><a class="nav-link" href="admin-dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                <li><a class="nav-link" href="admin-flights.html"><i class="bi bi-airplane"></i> Flights</a></li>
+                <li><a class="nav-link active" href="admin-users.html"><i class="bi bi-people-fill"></i> Users</a></li>
+                <li><a class="nav-link" href="admin-reservations.html"><i class="bi bi-clipboard-data"></i> Reservations</a></li>
+            </ul>
+            <hr class="border-secondary mx-3">
+            <ul class="nav flex-column px-2">
+                <li><a class="nav-link" href="index.html"><i class="bi bi-house-fill"></i> Back to Site</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main -->
+        <main class="flex-grow-1 p-4 bg-light">
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div>
+                    <h4 class="fw-bold mb-0"> User Management </h4>
+                    <p class="text-muted small mb-0"> Manage registered passengers and admin accounts. </p>
+                </div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                    <i class="bi bi-person-plus-fill me-2"></i> Add User
+                </button>
+            </div>
+
+            <!-- KPI stats -->
+            <div class="row g-3 mb-4" id="userStatsRow">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Filter bar -->
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-body p-3">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                <input type="text" class="form-control" id="userSearch"
+                                       placeholder="Search by name, email, or ID…">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="roleFilter">
+                                <option value=""> All Roles </option>
+                                <option value="Admin"> Admin </option>
+                                <option value="Passenger"> Passenger </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="statusFilter">
+                                <option value=""> All Statuses </option>
+                                <option value="Active"> Active </option>
+                                <option value="Suspended"> Suspended </option>
+                                <option value="Inactive"> Inactive </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="userSort">
+                                <option value="name-asc"> Name A–Z </option>
+                                <option value="name-desc"> Name Z–A </option>
+                                <option value="joined-desc"> Newest First </option>
+                                <option value="bookings-desc"> Most Bookings </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <button class="btn btn-outline-secondary" id="clearUserFilters">
+                                <i class="bi bi-x-circle me-1"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bulk actions bar -->
+            <div id="bulkActionsBar" class="d-none mb-3">
+                <div class="card border-0 shadow-sm bg-primary-subtle">
+                    <div class="card-body py-2 px-3 d-flex align-items-center gap-3 flex-wrap">
+                        <span class="fw-semibold small text-primary">
+                            <i class="bi bi-check2-square me-1"></i>
+                            <span id="selectedCount">0</span> selected
+                        </span>
+                        <button class="btn btn-sm btn-outline-success" onclick="bulkAction('activate')">
+                            <i class="bi bi-check-circle me-1"></i> Activate
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning" onclick="bulkAction('suspend')">
+                            <i class="bi bi-pause-circle me-1"></i> Suspend
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="bulkAction('delete')">
+                            <i class="bi bi-trash me-1"></i> Delete
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary ms-auto" onclick="clearSelection()">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users table -->
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3" style="width:40px;">
+                                        <input type="checkbox" class="form-check-input" id="selectAll">
+                                    </th>
+                                    <th> User </th>
+                                    <th> Email </th>
+                                    <th> Role </th>
+                                    <th> Status </th>
+                                    <th> Bookings </th>
+                                    <th> Joined </th>
+                                    <th class="text-end pe-3"> Actions </th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center px-3 py-3 border-top flex-wrap gap-2">
+                        <div class="text-muted small" id="userPaginationInfo"></div>
+                        <nav><ul class="pagination pagination-sm mb-0" id="userPagination"></ul></nav>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="bi bi-person-plus-fill me-2"></i> Add New User</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small"> First Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="auFname" placeholder="e.g. Juan">
+                            <div class="invalid-feedback"> First name is required. </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small"> Last Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="auLname" placeholder="e.g. dela Cruz">
+                            <div class="invalid-feedback"> Last name is required. </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small"> Email Address <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="auEmail" placeholder="juan@email.com">
+                            <div class="invalid-feedback"> Valid email is required. </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small"> Contact Number </label>
+                            <input type="tel" class="form-control" id="auPhone" placeholder="+63 9XX XXX XXXX">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small"> Role </label>
+                            <select class="form-select" id="auRole">
+                                <option value="Passenger"> Passenger </option>
+                                <option value="Admin"> Admin </option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small"> Status </label>
+                            <select class="form-select" id="auStatus">
+                                <option value="Active"> Active </option>
+                                <option value="Inactive"> Inactive </option>
+                                <option value="Suspended"> Suspended </option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small"> Nationality </label>
+                            <select class="form-select" id="auNationality">
+                                <option> Filipino </option>
+                                <option> American </option>
+                                <option> Japanese </option>
+                                <option> Singaporean </option>
+                                <option> Other </option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small"> Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="auPassword" placeholder="Min. 8 characters">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePw1">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small"> Confirm Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="auPassword2" placeholder="Repeat password">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePw2">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="auSendEmail">
+                                <label class="form-check-label small" for="auSendEmail">
+                                    Send welcome email to user
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal"> Cancel </button>
+                    <button class="btn btn-primary" id="saveAddUserBtn">
+                        <i class="bi bi-person-check-fill me-2"></i> Create User
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View User Modal -->
+    <div class="modal fade" id="viewUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-person-circle me-2 text-primary"></i> User Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="viewUserBody">
+                    <!-- Populated by JS -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal"> Close </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div class="modal fade" id="editUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title"><i class="bi bi-pencil-fill me-2"></i> Edit User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="euId">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small"> Full Name </label>
+                            <input type="text" class="form-control" id="euName">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small"> Email </label>
+                            <input type="email" class="form-control" id="euEmail">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small"> Phone </label>
+                            <input type="tel" class="form-control" id="euPhone">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small"> Role </label>
+                            <select class="form-select" id="euRole">
+                                <option value="Passenger"> Passenger </option>
+                                <option value="Admin"> Admin </option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small"> Status </label>
+                            <select class="form-select" id="euStatus">
+                                <option value="Active"> Active </option>
+                                <option value="Inactive"> Inactive </option>
+                                <option value="Suspended"> Suspended </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal"> Cancel </button>
+                    <button class="btn btn-warning" id="saveEditUserBtn">
+                        <i class="bi bi-save me-1"></i> Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete User Modal -->
+    <div class="modal fade" id="deleteUserModal" tabindex="-1">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="bi bi-trash-fill me-2"></i> Delete User</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size:2.5rem;"></i>
+                    <p class="mt-3 mb-1"> Delete user </p>
+                    <strong class="text-primary" id="deleteUserName"></strong>?
+                    <p class="text-muted small mt-2"> This action cannot be undone. </p>
+                </div>
+                <div class="modal-footer justify-content-center gap-2">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal"> Cancel </button>
+                    <button class="btn btn-danger" id="confirmDeleteUserBtn">
+                        <i class="bi bi-trash me-1"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 1100;"></div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="position-fixed top-50 start-50 translate-middle" style="z-index: 9999; display: none;">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden"> Loading... </span>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/admin-users.js"></script>
+</body>
+</html>

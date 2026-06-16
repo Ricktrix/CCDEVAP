@@ -3,69 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Lorem Ipsum | Admin Dashboard </title>
-    <!-- Bootstrap 5 CDN -->
+    <title>Placeholder | Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <!-- External Stylesheet -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
     <!-- Global Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
-        <div class="container">
+        <div class="container-fluid px-3">
             <a class="navbar-brand fw-bold fs-4" href="index.html">
-                <i class="bi bi-snow"></i> Lorem Ipsum 
+                <i class="bi bi-snow"></i> Placeholder
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">
-                            <i class="bi bi-house-door"></i> Home
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="search.html">
-                            <i class="bi bi-search"></i> Search Flights
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="booking.html">
-                            <i class="bi bi-tickted-perforated"></i> Book Flight
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="reservations.html">
-                            <i class="bi bi-calendar-check"></i> My Reservations
-                        </a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="search.html"><i class="bi bi-search"></i> Search Flights</a></li>
+                    <li class="nav-item"><a class="nav-link" href="booking.html"><i class="bi bi-ticket-perforated"></i> Book Flight</a></li>
+                    <li class="nav-item"><a class="nav-link" href="reservations.html"><i class="bi bi-calendar-check"></i> My Reservations</a></li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-gear"></i> Admin Panel
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="admin-dashboard.html"> Dashboard </a></li>
                             <li><a class="dropdown-item" href="admin-flights.html"> Manage Flights </a></li>
                             <li><a class="dropdown-item" href="admin-users.html"> Manage Users </a></li>
-                            <li><a class="dropdown-item" href="admin-reservations"> Manage Reservations </a></li>
+                            <li><a class="dropdown-item" href="admin-reservations.html"> Manage Reservations </a></li>
                         </ul>
                     </li>
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
                             <img src="https://via.placeholder.com/32" alt="User" class="rounded-circle me-2" width="32" height="32">
-                            Admin User
+                            Admin
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person-circle"></i> Profile </a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Settings </a></li>
-                            <li><hr class=dropdown-divider></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right"></i> Logout </a></li>
+                            <li><a class="dropdown-item" href="profile.html"><i class="bi bi-person-circle"></i> Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -73,317 +55,129 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="bg-light min-vh-100 py-4">
-        <div class="container">
+    <!-- Admin Layout -->
+    <div class="d-flex" style="min-height: calc(100vh - 56px);">
+
+        <!-- Sidebar -->
+        <nav class="admin-sidebar d-none d-md-block py-3">
+            <div class="px-3 mb-2 small text-muted text-uppercase fw-semibold"> Menu </div>
+            <ul class="nav flex-column px-2">
+                <li><a class="nav-link active" href="admin-dashboard.html">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a></li>
+                <li><a class="nav-link" href="admin-flights.html">
+                    <i class="bi bi-airplane"></i> Flights
+                </a></li>
+                <li><a class="nav-link" href="admin-users.html">
+                    <i class="bi bi-people-fill"></i> Users
+                </a></li>
+                <li><a class="nav-link" href="admin-reservations.html">
+                    <i class="bi bi-clipboard-data"></i> Reservations
+                </a></li>
+            </ul>
+            <hr class="border-secondary mx-3">
+            <ul class="nav flex-column px-2">
+                <li><a class="nav-link" href="index.html">
+                    <i class="bi bi-house-fill"></i> Back to Site
+                </a></li>
+            </ul>
+        </nav>
+
+        <!-- Main -->
+        <main class="flex-grow-1 p-4 bg-light">
+
             <!-- Page Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <div>
-                    <h2 class="fw-bold mb-0"> Admin Dashboard </h2>
-                    <p class="text-muted mb-0"> Welcom back! Here's what's happening today. </p>
+                    <h4 class="fw-bold mb-0"> Admin Dashboard </h4>
+                    <p class="text-muted small mb-0"> Welcome back! Here's what's happening. </p>
                 </div>
-                <div class="d-flex gap-2">
-                    <button type="button" id="refreshDashboardBtn" class="btn btn-outline-primary">
-                        <i class="bi bi-arrow-clockwise me-2"></i> Refresh
-                    </button>
-                    <button type="button" id="exportReportBtn" class="btn btn-outline-success">
-                        <i class="bi bi-download me-2"></i> Export
-                    </button>
-                    <button type="button" id="generateAnalyticsBtn" class="btn btn-primary">
-                        <i class="bi bi-plus-circle me-2"></i> Add Flight
-                    </button>
+                <div class="text-muted small">
+                    <i class="bi bi-clock me-1"></i>
+                    <span id="adminClock"></span>
                 </div>
             </div>
 
-            <!-- Filter Controls -->
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-3">
-                            <label class="form-label fw-semibold"> Time Filter </label>
-                            <select class="form-select" id="timeFilter">
-                                <option value="today"> Today </option>
-                                <option value="week"> This Week </option>
-                                <option value="month" selected> This Month </option>
+            <!-- KPI Stats -->
+            <div class="row g-3 mb-4" id="kpiRow">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Charts row -->
+            <div class="row g-4 mb-4">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h6 class="fw-bold mb-0"> Monthly Bookings </h6>
+                            <select class="form-select form-select-sm" style="width:120px;" id="chartYearSelect">
+                                <option> 2025 </option>
+                                <option> 2024 </option>
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label fw-semibold"> Destination Filter </label>
-                            <select class="form-select" id="destinationFilter">
-                                <option value="all"> All Destinations </option>
-                                <option value="tokyo"> Tokyo </option>
-                                <option value="new york"> New York </option>
-                                <option value="london"> London </option>
-                                <option value="dubai"> Dubai </option>
-                                <option value="paris"> Paris </option>
-                            </select>
+                        <div class="card-body">
+                            <canvas id="bookingsChart" height="100"></canvas>
                         </div>
-                        <div class="col-md-6 d-flex align-items-center">
-                            <div class="d-flex gap-2 w-100 justify-content-end">
-                                <button type="button" class="btn btn-outline-secondary" id="applyFilterBtn">
-                                    <i class="bi bi-funnel me-2"></i> Apply Filters
-                                </button>
-                            </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header bg-white">
+                            <h6 class="fw-bold mb-0"> Booking Status </h6>
+                        </div>
+                        <div class="card-body d-flex align-items-center justify-content-center">
+                            <canvas id="statusChart" height="200"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Analytics Cards with IDs for JS -->
-            <div class="row g-4 mb-4">
-                <!-- Total Bookings -->
-                <div class="col-md-3">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <p class="text-muted mb-0"> Total Bookings </p>
-                                    <h2 class="fw-bold mb-0" id="totalBookings"> 0 </h2>
-                                </div>
-                                <div class="bg-primary bg-opacity-10 rounded p-3">
-                                    <i class="bi bi-ticket-perforated fs-3 text-primary"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Total Revenue -->
-                <div class="col-md-3">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <p class="text-muted mb-0"> Total Revenue </p>
-                                    <h2 class="fw-bold mb-0" id="totalRevenue"> $0 </h2>
-                                </div>
-                                <div class="bg-success bg-opacity-10 rounded p-3">
-                                    <i class="bi bi-currency-dollar fs-3 text-success"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Flights Today -->
-                <div class="col-md-3">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <p class="text-muted mb-0"> Flights Today </p>
-                                    <h2 class="fw-bold mb-0" id="flightsToday"> 0 </h2>
-                                </div>
-                                <div class="bg-warning bg-opacity-10 rounded p-3">
-                                    <i class="bi bi-airplane fw-3 text-warning"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Active Users -->
-                <div class="col-md-3">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <p class="text-muted mb-0"> Active Users </p>
-                                    <h2 class="fw-bold mb-0" id="activeUsers"> 0 </h2>
-                                </div>
-                                <div class="bg-info bg-opacity-10 rounded p-3">
-                                    <i class="bi bi-people fs-3 text-info"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Bottom row -->
+            <div class="row g-4">
 
-            <!-- Charts area with containers for JS -->
-            <div class="row g-4 mb-4">
-                <!-- Revenue Trend Chart -->
-                <div class="col-md-8">
+                <!-- Top routes -->
+                <div class="col-lg-6">
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                            <h5 class="fw-bold mb-0"> Revenue Trend </h5>
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-outline-secondary"> Daily </button>
-                                <button class="btn btn-outline-secondary active"> Monthly </button>
-                                <button class="btn btn-outline-secondary"> Yearly </button>
-                            </div>
+                            <h6 class="fw-bold mb-0"> Top Routes </h6>
+                            <a href="admin-flights.html" class="btn btn-sm btn-outline-primary"> View All </a>
                         </div>
-                        <div class="card-body">
-                            <div id="revenueChartContainer" class="chart-content">
-                                <!-- Dynamic content loaded by the JS -->
-                            </div>
+                        <div class="card-body p-0" id="topRoutesTable">
+                            <!-- Populated by JS -->
                         </div>
                     </div>
                 </div>
-                <!-- Popular Destinations  -->
-                <div class="col-md-4">
+
+                <!-- Recent bookings -->
+                <div class="col-lg-6">
                     <div class="card shadow-sm border-0">
-                        <div class="card-header bg-white">
-                            <h5 class="fw-bold mb-0"> Popular Destinations </h5>
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h6 class="fw-bold mb-0"> Recent Bookings </h6>
+                            <a href="admin-reservations.html" class="btn btn-sm btn-outline-primary"> View All </a>
                         </div>
-                        <div class="card-body">
-                            <div id="popularDestinationsContainer">
-                                <!-- Dynamic content loaded by JS -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Activty Table with id -->
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="fw-bold mb-0"> Recent Activity </h5>
-                        <button type="button" class="btn btn-link btn-sm text-decoration-none"> View All </button>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="ps-4"> Activity </th>
-                                    <th> User </th>
-                                    <th> Date </th>
-                                    <th class="pe-4"> Status </th>
-                                </tr>
-                            </thead>
-                            <tbody id="recentActivityTableBody">
-                                <!-- Dynamic Content loaded by the JS file  -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Admin Quick Actions -->
-            <div class="row g-4 mt-4">
-                <div class="col-md-12">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-header bg-white">
-                            <h5 class="fw-bold mb-0"> Admin Quick Actions </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-md-3">
-                                    <a class="admin-flights.html" class="text-decoration-none">
-                                        <div class="card h-100 border bg-light hover-card">
-                                            <div class="card-body text-center">
-                                                <i class="bi bi-airplane fs-1 text-primary"></i>
-                                                <h6 class="mt-2 mb-0 text-dark"> Manage Flights </h6>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="col-md-3">
-                                    <a href="admin-users.html" class="text-decoration-none">
-                                        <div class="card h-100 border bg-light hover-card">
-                                            <div class="card-body text-center">
-                                                <i class="bi bi-people fs-1 text-success"></i>
-                                                <h6 class="mt-2 mb-0 text-dark"> Manage Users </h6>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="col-md-3">
-                                    <a href="admin-reservations.html" class="text-decoration-none">
-                                        <div class="card h-100 border bg-light hover-card">
-                                            <div class="card-body text-center">
-                                                <i class="bi bi-calendar check fs-1 text-warning"></i>
-                                                <h6 class="mt-2 mb-0 text-dark"> Manage Reservations </h6>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="col-md-3">
-                                    <a href="#" class="text-decoration-none">
-                                        <div class="card h-100 border bg-light hover-card">
-                                            <div class="card-body text-center">
-                                                <i class="bi bi-file-earmark-pdf fs-1 text-danger"></i>
-                                                <h6 class="mt-2 mb-0 text-dark"> Generate Reports </h6>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
+                        <div class="card-body p-0" id="recentBookingsTable">
+                            <!-- Populated by JS -->
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </main>
 
-    <!-- Global Footer -->
-    <footer class="bg-dark text-white pt-5 pb-4">
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-lg-4">
-                    <h4 class="fw-bold mb-3"><i class="bi bi-snow"></i> Lorem Ipsum </h4>
-                    <p class="text-light mb-3"> Your trusted partner for comfortable and affordable air travel. </p>
-                    <div class="d-flex gap-3">
-                        <a href="#" class="text-white fs-4"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="text-white fs-4"><i class="bi bi-twitter-x"></i></a>
-                        <a href="#" class="text-white fs-4"><i class="bi bi-instagram"></i></a>
-                        <a href="#" class="text-white fs-4"><i class="bi bi-linkedin"></i></a>
-                    </div>
-                </div>
-                <div class="col-2">
-                    <h5 class="fw-bold mb-3"> Quick Links </h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="index.html" class="text-light text-decoration-none"> Home </a></li>
-                        <li class="mb-2"><a href="search.html" class="text-light text-decoration-none"> Search Flights </a></li>
-                        <li class="mb-2"><a href="booking.html" class="text-light text-decoration-none"> Book Flight </a></li>
-                        <li class="mb-2"><a href="reservations.html" class="text-light text-decoration-none"> My Reservations </a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-3">
-                    <h5 class="fw-bold mb-3"> Contact Us </h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><i class="bi bi-geo-alt me-2"></i> Taft Ave., Malate, Manila City </li>
-                        <li class="mb-2"><i class="bi bi-telephone me-2"></i> +1 (800) 555-LOR </li>
-                        <li class="mb-2"><i class="bi bi-envelope me-2"></i> support@loremipsum.com </li>
-                    </ul>
-                </div>
-                <div class="col-lg-3">
-                    <h5 class="fw-bold mb-3"> Newsletter </h5>
-                    <p class="text-light mb-3"> Subscribe for exclusive offers. </p>
-                    <form class="d-flex">
-                        <input type="email" class="form-control me-2" placeholder="Enter email">
-                        <button type="button" class="btn btn-primary"><i class="bi bi-send"></i></button>
-                    </form>
-                </div>
             </div>
-            <hr class="my-4 border-light">
-            <div class="row">
-                <div class="col-md-6">
-                    <p class="text-light mb-0"> &copy; 2026 Lorem Ipsum Airlines. All rights reserved. </p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <a href="#" class="text-light text-decoration-none me-3"> Privacy Policy </a>
-                    <a href="#" class="text-light text-decoration-none me-3"> Terms of Conditions </a>
-                    <a href="#" class="text-light text-decoration-none me-3"> Cookie Policy </a>
-                </div>
-            </div>
-        </div>
-    </footer>
+        </main>
+    </div>
 
-    <!-- Toast Container for JS -->
+    <!-- Toast Container -->
     <div id="toastContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 1100;"></div>
 
-    <!-- Loading Spinner for JS -->
+    <!-- Loading Spinner -->
     <div id="loadingSpinner" class="position-fixed top-50 start-50 translate-middle" style="z-index: 9999; display: none;">
         <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
             <span class="visually-hidden"> Loading... </span>
         </div>
+    </div>
 
-    <!-- jQuery CDN -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <!-- Bootstrap 5 JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Extenal JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="js/data.js"></script>
     <script src="js/admin-dashboard.js"></script>
 </body>
 </html>
