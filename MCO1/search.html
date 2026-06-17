@@ -13,6 +13,17 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+    <!-- Loading Spinner Overlay -->
+    <div id="loadingSpinner" class="d-none position-fixed top-0 start-0 w-100h h-100 d-flex flex-column align-items-center justify-content-center bg-white bg-opacity-75" style="z-index: 2000;">
+        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;" aria-label="Loading">
+            <span class="visually-hidden"> Loading... </span>
+        </div>
+        <p class="fw-semibold text-primary fs-5"> Searching Flights... </p>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;" aria-atomic="true"></div>
+    
     <!-- Global NavBar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
         <div class="container">
@@ -78,7 +89,553 @@
         </div>
     </nav>
 
+    <!-- Hero Banner -->
+    <header class="bg-primary bg-gradient text-white py-4" role="banner">
+        <div class="container-xl">
+            <nav aria-label="Breadcrumb" class="mb-2">
+                <ol class="breadcrumb breadcrumb-chevron mb-0" style="--bs-breadcrumb-divider: '>';">
+                    <li class="breadcrumb-item">
+                        <i class="text-white-50 text-decoration-none"></i> Home
+                    </li>
+                    <li class="breadcrumb-item active text-white" aria-current="page"> Search Flights </li>
+                </ol>
+            </nav>
+            <div class="d-flex align-items-center gap-3">
+                <!-- Placeholder banner icon -->
+                <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 64px; height: 64px;" aria-hidden="true">
+                    <i class="bi bi-airplane-fill text-white fs-2"></i>
+                </div>
+                <div>
+                    <h1 class="mb-1 fw-bold fs-2"> Search Flights </h1>
+                    <p class="mb-0 text-white-75 fs-6"> Find the best flights at the best prices. </p>
+                </div>
+            </div>
+        </div>
+    </header>
+
     <!-- Main Content -->
+    <main class="container-xl py-4">
+        <!-- Search Form card -->
+        <section aria-labelledby="searchFormHeading" class="mb-4">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h2 class="mb-0 fs-5 fw-bold" id="searchFormHeading">
+                        <i class="bi bi-search text-primary me-2"></i> Flight Search
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Row 1: Origin / Destination / Trip Type -->
+                    <div class="row g-3 mb-3">
+                        <!-- Origin -->
+                        <div class="col-12 col-md-4">
+                            <label for="originSelect" class="form-label fw-semibold">
+                                <i class="bi bi-geo-alt-fill text-primary me-1"></i> Origin Airport
+                            </label>
+                            <select id="originSelect" class="form-select" aria-required="true">
+                                <option value="" selected disabled> - Selected Origin - </option>
+                                <option value="MNL"> Manila (MNL) </option>
+                                <option value="NRT"> Tokyo (NRT) </option>
+                                <option value="SIN"> Singapore (SIN) </option>
+                                <option value="DXB"> Dubai (DXB) </option>
+                                <option value="LHR"> London (LHR) </option>
+                                <option value="JFK"> New York (JFK) </option>
+                            </select>
+                        </div>
+
+                        <!-- Destination -->
+                        <div class="col-12 col-md-4">
+                            <label for="destinationSelect" class="form-label fw-semibold">
+                                <i class="bi bi-geo-fill text-danger me-1"></i> Destination Airport
+                            </label>
+                            <select id="destinationSelect" class="form-select" aria-required="true">
+                                <option value="" selected disabled> - Select Destination - </option>
+                                <option value="NRT"> Tokyo (NRT) </option>
+                                <option value="SIN"> Singapore (SIN) </option>
+                                <option value="DXB"> Dubai (DXB) </option>
+                                <option value="LHR"> London (LHR) </option>
+                                <option value="JFK"> New York (JFK) </option>
+                                <option value="CDG"> Paris (CDG) </option>
+                                <option value="MNL"> Manila (MNL) </option>
+                            </select>
+                        </div>
+
+                        <!-- Trip Type -->
+                        <div class="col-12 col-md-4">
+                            <label for="tripType" class="form-label fw-semibold">
+                                <i class="bi bi-arrow-left-right text-secondary me-1"></i> Trip Type
+                            </label>
+                            <select id="tripType" class="form-select">
+                                <option value="one-way" selected> One Way </option>
+                                <option value="round-trip"> Round Trip </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- ROW 2: Departure Date / Return Date / Cabin Class -->
+                    <div class="row g-3 mb-3">
+        
+                        <!-- Departure Date -->
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <label for="departureDate" class="form-label fw-semibold">
+                                <i class="bi bi-calendar-event text-primary me-1"></i> Departure Date
+                            </label>
+                            <input type="date" id="departureDate" class="form-control" aria-required="true">
+                        </div>
+ 
+                        <!-- Return Date (hidden by default) -->
+                        <div class="col-12 col-sm-6 col-md-3" id="returnDateContainer" style="display:none;">
+                            <label for="returnDate" class="form-label fw-semibold">
+                                <i class="bi bi-calendar-check text-success me-1"></i> Return Date
+                            </label>
+                            <input type="date" id="returnDate" class="form-control">
+                        </div>
+ 
+                        <!-- Cabin Class -->
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <label for="cabinClass" class="form-label fw-semibold">
+                                <i class="bi bi-person-workspace text-secondary me-1"></i>Cabin Class
+                            </label>
+                            <select id="cabinClass" class="form-select">
+                                <option value=""> Any Class </option>
+                                <option value="Economy"> Economy </option>
+                                <option value="Premium Economy"> Premium Economy </option>
+                                <option value="Business"> Business </option>
+                                <option value="First Class"> First Class </option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Row 3: Passengers -->
+                    <div class="row g-3 mb-4">
+                        <!-- Adults -->
+                        <div class="col-6 col-sm-4 col-md-2">
+                            <label for="adultCount" class="form-label fw-semibold">
+                                <i class="bi bi-person-fill text-primary me-1"></i> Adults
+                            </label>
+                            <input type="number" id="adultCount" class="form-control text-center" min="1" value="1" aria-label="Number of adult passengers">
+                        </div>
+                        <!-- Children -->
+                        <div class="col-6 col-sm-4 col-md-2">
+                            <label for="childCount" class="form-label fw-semibold">
+                                <i class="bi bi-person-hearts text-warning me-1"></i> Children
+                            </label>
+                            <input type="number" id="childCount" class="form-control text-center" min="0" value="0" aria-label="Number of child passengers">
+                        </div>
+                        <!-- Infants -->
+                        <div class="col-6 col-sm-4 col-md-2">
+                            <label for="infantCount" class="form-label fw-semibold">
+                                <i class="bi bi-emoji-smile text-info me-1"></i> Infants
+                            </label>
+                            <input type="number" id="infantCount" class="form-control text-center" min="0" value="0" aria-label="Number of infant passengers">
+                        </div>
+                        <!-- Search Button -->
+                        <div class="col-12 col-md-4 d-flex align-items-end">
+                            <button id="searchFlightBtn" class="btn btn-primary btn-lg w-100 fw-semibold" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to search available flights">
+                                <i class="bi bi-search me-2"></i> Search Flights
+                            </button>
+                        </div>
+                    </div> 
+
+                    <!-- Advanced Search Accordion -->
+                    <div class="accordion" id="advancedSearchAccordion">
+                        <div class="accordion-item border rounded-3">
+                            <h3 class="accordion-header" id="advancedHeading">
+                                <button class="accordion-button collapsed rounded-3 fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#advancedSearchBody" aria-expanded="false" aria-controls="advancedSearchBody">
+                                    <i class="bi bi-sliders me-2 text-primary"></i> Advanced Search Options
+                                </button>
+                            </h3>
+                            <div id="advancedSearchBody" class="accordion-collapse collapse" aria-labelledby="advancedHeading">
+                                <div class="accordion-body">
+                                    <div class="row g-3">
+
+                                        <!-- Preferred Airline -->
+                                        <div class="col-12 col-md-4">
+                                            <label for="preferredAirline" class="form-label fw-semibold">
+                                                <i class="bi bi-building me-1"></i> Preferred Airline
+                                            </label>
+                                            <select id="preferredAirline" class="form-select">
+                                                <option value=""> All Airlines </option>
+                                                <option value="SkyJet"> SkyJet </option>
+                                                <option value="Philippine Airlines"> Philippine Airlines </option>
+                                                <option value="Singapore Airlines"> Singapore Airlines </option>
+                                                <option value="Emirates"> Emirates </option>
+                                                <option value="Qatar Airways"> Qatar Airways </option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Direct Flights -->
+                                        <div class="col-12 col-md-4 d-flex align-items-center">
+                                            <div class="form-check mt-4">
+                                                <input type="checkbox" id="directFlightOnly" class="form-check-input" value="1">
+                                                <label for="directFlightOnly" class="form-check-label fw-semibold">
+                                                    <i class="bi bi-arrow-right text-success me-1"></i> Direct Flights Only
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <!-- Flexible Dates Switch -->
+                                        <div class="col-12 col-md-4 d-flex align-items-center">
+                                            <div class="form-check form-switch mt-4">
+                                                <input type="checkbox" id="flexibleDates" class="form-check-input" role="switch">
+                                                <label for="flexibleDates" class="form-check-label fw-semibold">
+                                                    <i class="bi bi-calendar-range text-info me-1"></i> Flexible Dates
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <!-- Price Range -->
+                                        <div class="col-12">
+                                            <label for="priceRange" class="form-label fw-semibold d-flex justify-content-between">
+                                                <span><i class="bi bi-currency-dollar text-warning me-1"></i> Max Price </span>
+                                                <span id="priceRangeValue" class="badge bg-primary fs-6"> $5000 </span>
+                                            </label>
+                                            <input type="range" id="priceRange" class="form-range" min="100" max="5000" step="50" value="5000" data-bs-toggle="tooltip" data-bs-placement="top" title="Drag to set maximum price" aria-label="Price range slider" aria-valuemin="100" aria-valuemax="5000" aria-valuenow="5000">
+                                            <div class="d-flex justify-content-between text-muted small mt-1">
+                                                <span> $100 </span>
+                                                <span> $5,000 </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sidebar + Flights -->
+        <div class="row g-4">
+            <!-- Left Sidebar -->
+            <aside class="col-12 col-lg-3" aria-label="Flight filters">
+
+                <!-- Mobile Filter Notice -->
+                <div id="mobileFilterNotice" class="alert alert-info alert-dismissible d-flex align-items-center gap-2 mb-3" role="alert" style="display: none!important;">
+                    <i class="bi bi-phone fs-5"></i>
+                    <span></span>
+                    <button type="button" class="btn-close" data-bs-dimiss="alert" aria-label="Close"></button>
+                </div>
+                <!-- Filter Card -->
+                <div class="card border-0 shadow-sm rounded-3" id="filterSidebar">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h2 class="mb-0 fs-6 fw-bold">
+                            <i class="bi bi-funnel-fill text-primary me-2"></i> Filter Flights
+                        </h2>
+                    </div>
+                    <div class="card-body p-3">
+                        <!-- Airline Filters -->
+                        <fieldset class="mb-4">
+                            <legend class="fw-semibold fs-6 text-uppercase text-muted small mb-2 letter-spacing-1"> Airline </legend>
+                            <div class="form-check mb-1" data-bs-toggle="tooltip" data-bs-placement="right" title="Filter by SkyJet">
+                                <input class="form-check-input checkbox-airline" type="checkbox" id="filterSkyjet" value="SkyJet">
+                                <label class="form-check-label" for="filterSkyjet">
+                                    <i class="bi bi-airplane me-1 text-primary"></i> SkyJet
+                                </label>
+                            </div>
+                            <div class="form-check mb-1" data-bs-toggle="tooltip" data-bs-placement="right" title="Filter by Philippine Airlines">
+                                <input class="form-check-input checkbox-airline" type="checkbox" id="filterPAL" value="Philippine Airlines">
+                                <label class="form-check-label" for="filterPAL">
+                                    <i class="bi bi-airplane me-1 text-danger"></i> Philippine Airlines
+                                </label>
+                            </div>
+                            <div class="form-check mb-1" data-bs-toggle="tooltip" data-bs-placement="right" title="Filter by Singapore Airlines">
+                                <input class="form-check-input checkbox-airline" type="checkbox" id="filterSIA" value="Singapore Airlines">
+                                <label class="form-check-label" for="filterSIA">
+                                    <i class="bi bi-airplane me-1 text-warning"></i> Singapore Airlines
+                                </label>
+                            </div>
+                            <div class="form-check mb-1" data-bs-toggle="tooltip" data-bs-placement="right" title="Fitler by Emirates">
+                                <input class="form-check-input checkbox-airline" type="checkbox" id="filterEmirates" value="Emirates">
+                                <label class="form-check-label" for="filterEmirates">
+                                    <i class="bi bi-airplane me-1 text-success"></i> Emirates
+                                </label>
+                            </div>
+                            <div class="form-check" data-bs-toggle="tooltip" data-bs-placement="right" title="Filter by Qatar Airways">
+                                <input class="form-check-input checkbox-airline" type="checkbox" id="filterQatar" value="Qatar Airways">
+                                <label class="form-check-label" for="filterQatar">
+                                    <i class="bi bi-airplane me-1 text-info"></i> Qatar Airways
+                                </label>
+                            </div>
+                        </fieldset>
+
+                        <hr class="my-3">
+                        <!-- Price Filters -->
+                        <fieldset class="mb-4">
+                            <legend class="fw-semibold fs-6 text-uppercase text-muted small mb-2">
+                                Price Range
+                            </legend>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input checkbox-price" type="checkbox" id="priceUnder500" value="0-499">
+                                <label class="form-check-label" for="priceUnder500"> Under $500 </label>
+                            </div>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input checkbox-price" type="checkbox" id="price500to1000" value="500-1000">
+                                <label class="form-check-label" for="price500to1000"> $500 - $1000 </label>
+                            </div>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input checkbox-price" type="checkbox" id="price1000to2000" value="1000-2000">
+                                <label class="form-check-label" for="price1000to2000"> $1000 - $2000 </label>
+                            </div>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input checkbox-price" type="checkbox" id="priceAbove2000" value="2000-99999">
+                                <label class="form-check-label" for="priceAbove2000"> Above $2,000 </label>
+                            </div>
+                        </fieldset>
+
+                        <hr class="my-3">
+                        <!-- Stop Filters -->
+                        <fieldset class="mb-4">
+                            <legend class="fw-semibold fs-6 text-uppercase text-muted small mb-2">
+                                Stops
+                            </legend>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input checkbox-stops" type="checkbox" id="filterDirect" value="0">
+                                <label class="form-check-label" for="filterDirect">
+                                    <span class="badge bg-success me-1"> Direct </span> Non-stop
+                                </label>
+                            </div>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input checkbox-stops" type="checkbox" id="filter1Stop" value="1">
+                                <label class="form-check-label" for="filter1Stop"> 1 Stop </label>
+                            </div>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input checkbox-stops" type="checkbox" id="filter2Stops" value="2">
+                                <label class="form-check-label" for="filter2Stops"> 2 Stops </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-stops" type="checkbox" id="filter3PlusStops" value="3">
+                                <label class="form-check-label" for="filter3PlusStops">3+ Stops</label>
+                            </div>
+                        </fieldset>
+ 
+                        <hr class="my-3">
+                        <!-- Departure Schedule Filters -->
+                        <fieldset>
+                            <legend class="fw-semibold fs-6 text-uppercase text-muted small mb-2">
+                                Departure Schedule
+                            </legend>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input checkbox-schedule" type="checkbox" id="scheduleMorning" value="morning">
+                                <label class="form-check-label" for="scheduleMorning">
+                                    <i class="bi bi-sunrise text-warning me-1"></i> Morning (5am – 11:59am)
+                                </label>
+                            </div>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input checkbox-schedule" type="checkbox" id="scheduleAfternoon" value="afternoon">
+                                <label class="form-check-label" for="scheduleAfternoon">
+                                    <i class="bi bi-sun text-orange me-1"></i> Afternoon (12pm – 4:59pm)
+                                </label>
+                            </div>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input checkbox-schedule" type="checkbox" id="scheduleEvening" value="evening">
+                                <label class="form-check-label" for="scheduleEvening">
+                                    <i class="bi bi-sunset text-danger me-1"></i> Evening (5pm – 8:59pm)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-schedule" type="checkbox" id="scheduleNight" value="night">
+                                <label class="form-check-label" for="scheduleNight">
+                                    <i class="bi bi-moon-stars text-primary me-1"></i> Night (9pm – 4:59am)
+                                </label>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <!-- Recent Searches Card -->
+                <div class="card border-0 shadow-sm rounded-3 mt-4">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h2 class="mb-0 fs-6 fw-bold">
+                            <i class="bi bi-clock-history text-secondary me-2"></i>Recent Searches
+                        </h2>
+                    </div>
+                    <div class="card-body p-3" id="recentSearchesContainer">
+                        <!-- Populated by search.js -->
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Right Sidebar -->
+            <section class="col-12 col-lg-9" aria-labelledby="resultsHeading">
+                <!-- Results Header Bar -->
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                    <h2 class="mb-0 fs-5 fw-bold" id="resultsHeading">
+                        <i class="bi bi-list-ul text-primary me-2"></i>
+                        <span id="resultsCount"> Showing 0 Flights </span>
+                    </h2>
+                    <div class="d-flex align-items-center gap-2">
+                        <label for="sortFlights" class="form-label mb-0 fw-semibold text-nowrap small">
+                            Sort by:
+                        </label>
+                        <select id="sortFlights" class="form-select form-select-sm" style="width:auto;" data-bs-toggle="tooltip" data-bs-placement="top" title="Sort the flight results" aria-label="Sort flights by">
+                            <option value="price"> Price </option>
+                            <option value="departure"> Departure Time </option>
+                            <option value="duration"> Duration </option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Flights Cards Container -->
+                <div class="row" id="flightResultsContainer" aria-live="polite" aria-label="Flight results">
+                    <!-- Populated by the search.js -->
+                </div>
+                <!-- Flight Comparison Section -->
+                <section class="mt-4" aria-labelledby="comparisonHeading">
+                    <h2 class="fs-5 fw-bold mb-2" id="comparisonHeading">
+                        <i class="bi bi-bar-chart-line text-info me-2"></i> Flight Comparison
+                    </h2>
+                    <div id="comparisonContainer" data-bs-toggle="tooltip" data-bs-placement="top" title="Select up to 2 flights to compare">
+                        <p class="text-muted fst-italic"> No flights selected for comparison. </p>
+                    </div>
+                </section>
+                <!-- Popular Destinations Section -->
+                <section class="mt-4" aria-labelledby="popularDestHeading">
+                    <div class="card border-0 shadow-sm rounded-3">
+                        <div class="card-header bg-white border-bottom py-3">
+                            <h2 class="mb-0 fs-6 fw-bold" id="popularDestHeading">
+                                <i class="bi bi-star-fill text-warning me-2"></i> Popular Destinations
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3" id="popularDestinationsContainer">
+                                <!-- Populated by search.js -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </div>
+    </main>
+
+    <!-- Flight Details Modal -->
+    <div class="modal fade" id="flightDetailsModal" tabindex="-1" aria-labelledby="flightDetailsModalLabel" aria-hidden="true" role="dialog">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content rounded-3 border-0 shadow">
+ 
+                <div class="modal-header bg-primary text-white rounded-top-3">
+                    <h3 class="modal-title fs-5 fw-bold" id="flightDetailsModalLabel">
+                        <i class="bi bi-info-circle me-2"></i> Flight Details
+                    </h3>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+ 
+                <div class="modal-body p-4">
+                    <!-- Populated by search.js -->
+                    <div id="flightDetailsContent">
+ 
+                        <div class="row g-3">
+                            <div class="col-6 col-md-4">
+                                <p class="text-muted small mb-1"> Flight Number </p>
+                                <p class="fw-bold mb-0" id="modalFlightNumber">—</p>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <p class="text-muted small mb-1"> Airline </p>
+                                <p class="fw-bold mb-0" id="modalAirline">—</p>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <p class="text-muted small mb-1"> Aircraft </p>
+                                <p class="fw-bold mb-0" id="modalAircraft">—</p>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <p class="text-muted small mb-1"> Departure Time </p>
+                                <p class="fw-bold mb-0" id="modalDeparture">—</p>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <p class="text-muted small mb-1"> Arrival Time </p>
+                                <p class="fw-bold mb-0" id="modalArrival">—</p>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <p class="text-muted small mb-1"> Duration </p>
+                                <p class="fw-bold mb-0" id="modalDuration">—</p>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <p class="text-muted small mb-1"> Gate </p>
+                                <p class="fw-bold mb-0" id="modalGate">—</p>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <p class="text-muted small mb-1"> Stops </p>
+                                <p class="fw-bold mb-0" id="modalStops">—</p>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <p class="text-muted small mb-1"> Baggage Allowance </p>
+                                <p class="fw-bold mb-0" id="modalBaggage">—</p>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <p class="text-muted small mb-1"> Cabin Class </p>
+                                <p class="fw-bold mb-0" id="modalCabinClass">—</p>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <p class="text-muted small mb-1"> Price </p>
+                                <p class="fw-bold text-primary fs-5 mb-0" id="modalPrice">—</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+ 
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Close
+                    </button>
+                    <button type="button" class="btn btn-primary book-flight-btn" data-bs-dismiss="modal">
+                        <i class="bi bi-ticket-perforated me-1"></i> Book This Flight
+                    </button>
+                </div>
+ 
+            </div>
+        </div>
+    </div>
+
+    <!-- GLOBAL FOOTER -->
+    <footer class="bg-dark text-white pt-5 pb-4">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <h4 class="fw-bold mb-3"><i class="bi bi-snow"></i> SkyJet Airlines</h4>
+                    <p class="text-light mb-3">Your trusted partner for comfortable and affordable air travel.</p>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-white fs-4"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-white fs-4"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-white fs-4"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="text-white fs-4"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                    <h5 class="fw-bold mb-3">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="index.html" class="text-light text-decoration-none">Home</a></li>
+                        <li class="mb-2"><a href="search.html" class="text-light text-decoration-none">Search Flights</a></li>
+                        <li class="mb-2"><a href="booking.html" class="text-light text-decoration-none">Book Flight</a></li>
+                         <li class="mb-2"><a href="reservations.html" class="text-light text-decoration-none">My Reservations</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3">
+                    <h5 class="fw-bold mb-3">Contact Us</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-geo-alt me-2"></i> Taft Ave., Malate, Manila City </li>
+                        <li class="mb-2"><i class="bi bi-telephone me-2"></i> +1 (800) 555-LOR </li>
+                        <li class="mb-2"><i class="bi bi-envelope me-2"></i> support@loremipsum.com </li>
+                    </ul>
+                </div>
+                <div class="col-lg-3">
+                    <h5 class="fw-bold mb-3">Newsletter</h5>
+                    <p class="text-light mb-3">Subscribe for exclusive offers.</p>
+                    <form class="d-flex">
+                        <input type="email" class="form-control me-2" placeholder="Enter email">
+                        <button type="button" class="btn btn-primary"><i class="bi bi-send"></i></button>
+                    </form>
+                </div>
+            </div>
+            <hr class="my-4 border-light">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="text-light mb-0">&copy; 2026 Lorem Ipsum. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-light text-decoration-none me-3">Privacy Policy</a>
+                    <a href="#" class="text-light text-decoration-none me-3">Terms of Service</a>
+                    <a href="#" class="text-light text-decoration-none">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <!-- jQuery CDN -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
