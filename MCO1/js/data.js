@@ -4,7 +4,7 @@
    ============================================= */
 
 const AIRLINES = [
-    { code: "SW", name: "SkyWay Air",    color: "#0d6efd" },
+    { code: "SW", name: "Air Coast",    color: "#0d6efd" },
     { code: "PA", name: "Pacific Air",   color: "#198754" },
     { code: "SL", name: "SunLine",       color: "#ffc107" },
     { code: "CE", name: "Cebu Eagle",    color: "#dc3545" },
