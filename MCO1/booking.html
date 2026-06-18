@@ -4,163 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> Lorem Ipsum | Book Flight </title>
-    <!-- Bootstrap 5 CSS -->
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
-    <!-- External CSS -->
-    <link rel="stylesheet" href="css/styles.css">
-
-    <style>
-        
-        .stepper .step {
-            text-align: center;
-            flex: 1;
-            position: relative;
-        }
-        .stepper .step:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            top: 15px;
-            left: 50%;
-            width: 100%;
-            height: 2px;
-            background-color: #dee2e6;
-            z-index: 1;
-        }
-        .stepper .step.active:not(:last-child)::after,
-        .stepper .step.completed:not(:last-child)::after {
-            background-color: #0d6efd;
-        }
-        .stepper .step-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background-color: #dee2e6;
-            color: #6c757d;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            position: relative;
-            z-index: 2;
-            transition: all 0.3s ease;
-        }
-        .stepper .step.active .step-icon {
-            background-color: #0d6efd;
-            color: #ffffff;
-        }
-        .stepper .step.completed .step-icon {
-            background-color: #198754;
-            color: #ffffff;
-        }
-
-        
-        .seat-map-container {
-            max-width: 450px;
-            margin: 0 auto;
-            background-color: #f8f9fa;
-            border: 2px solid #dee2e6;
-            border-radius: 20px;
-            padding: 20px;
-        }
-        .airplane-nose {
-            width: 100px;
-            height: 40px;
-            border-top-left-radius: 50px;
-            border-top-right-radius: 50px;
-            background-color: #e9ecef;
-            border: 2px solid #dee2e6;
-            border-bottom: none;
-            margin: 0 auto 15px auto;
-        }
-        .seat-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        .seat-row-label {
-            font-size: 0.8rem;
-            font-weight: bold;
-            color: #6c757d;
-            width: 20px;
-            text-align: center;
-        }
-        .cabin-aisle {
-            width: 30px;
-            height: 100%;
-        }
-        .plane-seat {
-            width: 32px;
-            height: 32px;
-            margin: 2px;
-            border-radius: 6px;
-            border: 1px solid #adb5bd;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-       
-        .plane-seat.available {
-            background-color: #e3f2fd;
-            color: #0d6efd;
-            border-color: #90caf9;
-        }
-        .plane-seat.available:hover {
-            background-color: #bbdefb;
-            transform: scale(1.1);
-        }
-        .plane-seat.premium {
-            background-color: #f3e5f5;
-            color: #9c27b0;
-            border-color: #ce93d8;
-        }
-        .plane-seat.premium:hover {
-            background-color: #e1bee7;
-            transform: scale(1.1);
-        }
-        .plane-seat.occupied {
-            background-color: #e9ecef;
-            color: #adb5bd;
-            border-color: #dee2e6;
-            cursor: not-allowed;
-        }
-        .plane-seat.selected {
-            background-color: #198754;
-            color: #ffffff;
-            border-color: #146c43;
-            animation: pulse-select 0.3s ease;
-        }
-
-        @keyframes pulse-select {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-
-        
-        body.dark-mode {
-            background-color: #121212 !important;
-            color: #f8f9fa !important;
-        }
-        body.dark-mode .card, 
-        body.dark-mode .modal-content,
-        body.dark-mode .list-group-item {
-            background-color: #1e1e1e !important;
-            color: #f8f9fa !important;
-            border-color: #2d2d2d !important;
-        }
-        body.dark-mode .seat-map-container {
-            background-color: #242424 !important;
-            border-color: #3d3d3d !important;
-        }
-    </style>
+    
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     
@@ -208,7 +58,7 @@
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-item-center" href="#" data-bs-toggle="dropdown">
                             <img src="https://via.placeholder.com/32" alt="User" class="rounded-circle me-2" width="32" height="32">
                             User1
                         </a>
@@ -220,7 +70,7 @@
                         </ul>
                     </li>
                 </ul>
-                <!-- Theme Toggle -->
+                
                 <button class="btn btn-outline-light ms-2" id="themeToggle" data-bs-toggle="tooltip" title="Toggle Dark Mode">
                     <i class="bi bi-moon-fill"></i>
                 </button>
@@ -265,6 +115,15 @@
                         <h4 class="fw-bold mb-4 text-primary"><i class="bi bi-person-fill me-2"></i>Passenger Information</h4>
                         <form id="passengerForm" class="needs-validation" novalidate>
                             <div class="row g-3">
+                                
+                                <!-- Flight Selector Option -->
+                                <div class="col-12">
+                                    <label for="flightSelector" class="form-label fw-semibold">Choose Your Flight</label>
+                                    <select class="form-select" id="flightSelector" required>
+                                        <!-- Populated dynamically by JS -->
+                                    </select>
+                                    <div class="invalid-feedback">Please choose an available flight.</div>
+                                </div>
                                
                                 <div class="col-md-6">
                                     <label for="fullName" class="form-label fw-semibold">Full Name</label>
@@ -494,7 +353,7 @@
                         
                         
                         <div class="p-3 bg-primary bg-opacity-10 border rounded mb-3" id="summaryFlightInfo">
-                            <!-- Populated dynamically via JS -->
+                            
                         </div>
 
                       

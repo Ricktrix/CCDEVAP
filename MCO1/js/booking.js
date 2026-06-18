@@ -33,6 +33,12 @@ $(document).ready(function () {
         
         
         try {
+            populateFlightSelector();
+        } catch (e) {
+            console.error("Failed to populate flight selector dropdown:", e);
+        }
+
+        try {
             retrieveSelectedFlight();
         } catch (e) {
             console.error("Failed to load flight info:", e);
@@ -52,18 +58,45 @@ $(document).ready(function () {
         
         try {
             recalculateTotals();
+            // Trigger initial menu description display
+            $("#mealSelect").trigger("change");
         } catch (e) {
             console.error("Failed to calculate initial pricing:", e);
         }
     }
 
-    
+   
+    function populateFlightSelector() {
+        var $selector = $("#flightSelector");
+        if ($selector.length === 0) return;
+
+        $selector.empty();
+        $selector.append('<option value="" disabled>-- Select a Flight --</option>');
+
+        if (typeof FLIGHTS !== 'undefined' && FLIGHTS.length > 0) {
+            for (var i = 0; i < FLIGHTS.length; i++) {
+                var f = FLIGHTS[i];
+                var airlineName = (typeof AIRLINES !== 'undefined' && AIRLINES[f.airline]) ? AIRLINES[f.airline].name : "Airline";
+                var optText = f.id + " – " + airlineName + " (" + f.from + " → " + f.to + ") – " + f.cabin + " Class – ₱" + f.price.toLocaleString();
+                $selector.append('<option value="' + f.id + '">' + optText + '</option>');
+            }
+        }
+    }
+
+   
     function retrieveSelectedFlight() {
         var storedId = localStorage.getItem("selectedFlightId");
-        
+        var activeFlightId = storedId;
+
+       
+        var selectedDropdownVal = $("#flightSelector").val();
+        if (selectedDropdownVal) {
+            activeFlightId = selectedDropdownVal;
+        }
+
         if (typeof FLIGHTS !== 'undefined' && FLIGHTS.length > 0) {
             currentFlight = FLIGHTS.find(function(f) {
-                return f.id === storedId;
+                return f.id === activeFlightId;
             }) || FLIGHTS[0];
         } else {
             currentFlight = { id: "SW101", from: "MNL", to: "CEB", price: 1850, cabin: "Economy" };
@@ -71,6 +104,9 @@ $(document).ready(function () {
 
         priceStructure.baseFare = currentFlight.price;
         
+        
+        $("#flightSelector").val(currentFlight.id);
+
         var flightHTML = `
             <div class="d-flex justify-content-between align-items-center">
                 <span class="badge bg-primary">${currentFlight.id}</span>
@@ -88,7 +124,7 @@ $(document).ready(function () {
         $("#summaryFlightInfo").html(flightHTML);
     }
 
-  
+    
     function generateAircraftSeatsMap() {
         var $cabin = $("#airplaneCabin");
         if ($cabin.length === 0) return;
@@ -109,7 +145,7 @@ $(document).ready(function () {
                 var patternVal = seatsPattern[colIdx];
 
                 if (patternVal === "Aisle") {
-                  
+                    
                     $rowDiv.append('<div class="col-2 text-center text-muted small" style="font-size: 0.7rem; font-weight: 500;">AISLE</div>');
                 } else {
                     
@@ -120,15 +156,29 @@ $(document).ready(function () {
                         seatTypeClass = "premium";
                     }
 
-                    
-                    if ((r === 3 && patternVal === "A") || (r === 5 && patternVal === "C") || (r === 1 && patternVal === "B")) {
+                   
+                    var isOccupied = false;
+                    if (currentFlight && currentFlight.id) {
+                        var charCodeSum = 0;
+                        for (var charIdx = 0; charIdx < currentFlight.id.length; charIdx++) {
+                            charCodeSum += currentFlight.id.charCodeAt(charIdx);
+                        }
+                       
+                        if (charCodeSum % 2 === 0) {
+                            isOccupied = (r === 3 && patternVal === "A") || (r === 5 && patternVal === "C") || (r === 1 && patternVal === "B");
+                        } else {
+                            isOccupied = (r === 2 && patternVal === "B") || (r === 4 && patternVal === "D") || (r === 6 && patternVal === "A");
+                        }
+                    }
+
+                    if (isOccupied) {
                         seatTypeClass = "occupied";
                     }
 
                     var seatCost = (seatTypeClass === "premium") ? 500 : 0;
                     var costLabel = (seatTypeClass === "premium") ? "Premium Seat (+₱500)" : "Standard Seat (₱0)";
                     
-                   
+                    
                     var $seatCol = $('<div class="col-2 d-flex justify-content-center"></div>');
                     var $seatEl = $('<div class="plane-seat ' + seatTypeClass + '" data-seat-id="' + seatId + '" data-price="' + seatCost + '" data-bs-toggle="tooltip" title="' + costLabel + '">' + patternVal + '</div>');
                     
@@ -137,12 +187,12 @@ $(document).ready(function () {
                 }
             }
             
-           
+            
             $rowDiv.append('<div class="col-1 text-center font-monospace fw-bold text-muted small">' + r + '</div>');
             $cabin.append($rowDiv);
         }
 
-       
+        
         try {
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             if (window.bootstrap && bootstrap.Tooltip) {
@@ -155,10 +205,10 @@ $(document).ready(function () {
         }
     }
 
-  
+    
     function bindEventHandlers() {
         
-     
+        
         $("#btnNext1").on("click", function() {
             if (validatePassengerForm()) {
                 $("#sumPassengerName").text($("#fullName").val());
@@ -168,7 +218,7 @@ $(document).ready(function () {
             }
         });
 
-      
+        
         $("#btnBack2").on("click", function() {
             transitionStep(1);
         });
@@ -187,6 +237,23 @@ $(document).ready(function () {
         });
 
         
+        $("#flightSelector").on("change", function() {
+            var selectedId = $(this).val();
+            localStorage.setItem("selectedFlightId", selectedId);
+            
+            
+            selectedSeatCode = "";
+            priceStructure.seatFee = 0;
+            $("#seatSelectionDisplay").text("No seat selected. Please pick a seat above.");
+            $("#sumSeat").text("-");
+
+            retrieveSelectedFlight();
+            generateAircraftSeatsMap();
+            recalculateTotals();
+            showToastNotification("Flight Updated", "Pricing details and seat maps have been updated.", "success");
+        });
+
+        
         $(document).on("click", ".plane-seat", function() {
             var $clicked = $(this);
             
@@ -196,20 +263,20 @@ $(document).ready(function () {
                 return;
             }
 
-           
+            
             $(".plane-seat.selected").removeClass("selected");
             
-
+            
             $clicked.addClass("selected");
             
             selectedSeatCode = $clicked.attr("data-seat-id");
             priceStructure.seatFee = parseInt($clicked.attr("data-price")) || 0;
 
-          
+            
             $("#seatSelectionDisplay").html('<span class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Selected Seat: ' + selectedSeatCode + ' (' + (priceStructure.seatFee > 0 ? "Premium Seat" : "Standard Seat") + ')</span>');
             $("#sumSeat").text(selectedSeatCode);
 
-           
+            
             recalculateTotals();
             showToastNotification("Seat Selection", "You selected seat " + selectedSeatCode, "success");
 
@@ -219,17 +286,20 @@ $(document).ready(function () {
                 'Status: <strong>' + (priceStructure.seatFee > 0 ? "Premium Comfort Row" : "Standard Seat") + '</strong><br>' +
                 'Additional Surcharge: <strong>₱' + priceStructure.seatFee.toLocaleString() + '</strong>';
 
-         
+            
             $("#seatModalDetails, #seat-modal-info").html(seatDetailsHTML);
 
             try {
                 var modalTargetElement = document.getElementById("seatDetailModal") || document.getElementById("seatModal");
                 if (modalTargetElement) {
                     if (window.bootstrap && bootstrap.Modal) {
-                        var myModal = new bootstrap.Modal(modalTargetElement);
+                        
+                        var myModal = bootstrap.Modal.getInstance(modalTargetElement);
+                        if (!myModal) {
+                            myModal = new bootstrap.Modal(modalTargetElement);
+                        }
                         myModal.show();
                     } else {
-                      
                         $(modalTargetElement).addClass("show").css({
                             "display": "block",
                             "background": "rgba(0,0,0,0.5)"
@@ -244,7 +314,7 @@ $(document).ready(function () {
             }
         });
 
-    
+        
         $("#mealSelect").on("change", function() {
             var $selectedOption = $(this).find("option:selected");
             selectedMealType = $selectedOption.val();
@@ -287,7 +357,7 @@ $(document).ready(function () {
             recalculateTotals();
         });
 
-       
+        
         $(".check-extra").on("change", function() {
             var $elem = $(this);
             var cost = parseInt($elem.attr("data-cost"));
@@ -323,7 +393,6 @@ $(document).ready(function () {
             setTimeout(function() {
                 hideSpinnerLoader();
                 
-               
                 var finalTotal = calculateTotalsValue();
                 var newBooking = {
                     ref: "SKY-" + Math.floor(100 + Math.random() * 900),
@@ -338,7 +407,6 @@ $(document).ready(function () {
                     meal: selectedMealType
                 };
 
-               
                 if (typeof RESERVATIONS !== 'undefined') {
                     RESERVATIONS.unshift(newBooking);
                 }
@@ -358,7 +426,6 @@ $(document).ready(function () {
         $(".card[id^='stepPanel']").addClass("d-none");
         $("#stepPanel" + targetStep).removeClass("d-none");
 
-        
         $(".stepper .step").removeClass("active completed");
         for (var i = 1; i <= 3; i++) {
             var $indicator = $("#stepIndicator" + i);
@@ -371,7 +438,6 @@ $(document).ready(function () {
 
         activeStep = targetStep;
         
-       
         $("html, body").animate({ scrollTop: 0 }, 300);
     }
 
@@ -388,7 +454,7 @@ $(document).ready(function () {
             return true;
         }
 
-       
+        
         var isFormValid = true;
         $("#passengerForm input, #passengerForm select").each(function () {
             if ($(this).prop("required") && $(this).val() === "") {
@@ -411,7 +477,6 @@ $(document).ready(function () {
         var calculatedTax = Math.round(rawSubTotal * priceStructure.taxPercentage);
         var grandTotalSum = rawSubTotal + calculatedTax;
 
-        
         $("#priceBase").text("₱" + priceStructure.baseFare.toLocaleString());
         $("#priceSeat").text("₱" + seatAmt.toLocaleString());
         $("#priceMeal").text("₱" + mealAmt.toLocaleString());
@@ -466,6 +531,5 @@ $(document).ready(function () {
         $("#loadingSpinner").fadeOut(150);
     }
 
-    
     initialize();
 });

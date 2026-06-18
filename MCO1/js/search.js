@@ -7,7 +7,7 @@ $(document).ready(function () {
 
     let compareList = [];
 
-    /* ── Populate dropdowns ── */
+    
     function populateAirports() {
         const opts = AIRPORTS.map(a =>
             `<option value="${a.code}">${a.code} – ${a.city}</option>`
@@ -40,7 +40,7 @@ $(document).ready(function () {
         $("#searchDep").val(today);
     }
 
-    /* ── Skeleton loader ── */
+
     function showSkeleton() {
         const skels = Array.from({ length: 3 }, () => `
             <div class="card mb-3 shadow-sm border-0">
@@ -59,7 +59,7 @@ $(document).ready(function () {
         $("#skeletonLoader").empty();
     }
 
-    /* ── Render flight card ── */
+
     function renderFlightCard(f) {
         const airline    = AIRLINES[f.airline];
         const seatsClass = f.seats <= 5 ? "text-danger" : f.seats <= 15 ? "text-warning" : "text-success";
@@ -107,7 +107,7 @@ $(document).ready(function () {
                             <div class="small ${seatsClass} mb-2">
                                 <i class="bi bi-person-fill me-1"></i>${f.seats} seats left
                             </div>
-                            <a href="booking.html" class="btn btn-primary btn-sm d-block mb-1"> Book Now </a>
+                            <a href="booking.html" class="btn btn-primary btn-sm d-block mb-1 book-btn" data-id="${f.id}"> Book Now </a>
                             <button class="btn btn-outline-secondary btn-sm d-block w-100"
                                     onclick="openFlightDetail('${f.id}')"> Details </button>
                         </div>
@@ -127,7 +127,7 @@ $(document).ready(function () {
             </div>`;
     }
 
-    /* ── Apply filters and sort ── */
+   
     function applyFilters() {
         const maxPrice      = parseInt($("#filterPriceRange").val());
         const checkedAirlines = $(".airline-filter:checked").map(function () { return +$(this).val(); }).get();
@@ -163,12 +163,15 @@ $(document).ready(function () {
         }
     }
 
-    /* ── Flight detail modal ── */
+    
     window.openFlightDetail = function (id) {
         const f  = FLIGHTS.find(x => x.id === id);
         const a  = AIRLINES[f.airline];
         const from = AIRPORTS.find(x => x.code === f.from);
         const to   = AIRPORTS.find(x => x.code === f.to);
+
+       
+        $("#flightDetailModal .modal-footer a").attr("data-id", f.id).addClass("book-btn");
 
         $("#flightDetailBody").html(`
             <div class="row g-3">
@@ -227,7 +230,7 @@ $(document).ready(function () {
         new bootstrap.Modal(document.getElementById("flightDetailModal")).show();
     };
 
-    /* ── Compare ── */
+    
     window.toggleCompare = function (id, btn) {
         if (compareList.includes(id)) {
             compareList = compareList.filter(x => x !== id);
@@ -302,7 +305,47 @@ $(document).ready(function () {
                         ).join("")}
                         <tr>
                             <td></td>
-                            ${flights.map(() => `<td><a href="booking.html" class="btn btn-primary btn-sm"> Book </a></td>`).join("")}
+                            ${flights.map(f => `<td><a href="booking.html" class="btn btn-primary btn-sm book-btn" data-id="${f.id}"> Book </a></td>`).join("")}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>`;
+        $("#compareModalBody").html(html);
+        new bootstrap.Modal(document.getElementById("compareModal")).show();
+    };
+
+    window.openCompareModal = function () {
+        const flights = compareList.map(id => FLIGHTS.find(f => f.id === id));
+        const rows = [
+            ["Airline",      f => AIRLINES[f.airline].name],
+            ["Flight No.",   f => f.id],
+            ["Departure",    f => f.dep],
+            ["Arrival",      f => f.arr],
+            ["Duration",     f => f.dur],
+            ["Stops",        f => f.stops === 0 ? "✅ Direct" : `${f.stops} stop(s)`],
+            ["Cabin",        f => f.cabin],
+            ["Seats Left",   f => f.seats],
+            ["Price",        f => `<strong class="text-primary">${formatPrice(f.price)}</strong>`]
+        ];
+        const html = `
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle text-center">
+                    <thead class="table-primary">
+                        <tr>
+                            <th class="text-start"> Feature </th>
+                            ${flights.map(f => `<th>${AIRLINES[f.airline].code}<br><small>${f.from}→${f.to}</small></th>`).join("")}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows.map(([label, fn]) => `
+                            <tr>
+                                <td class="text-start fw-semibold small text-muted">${label}</td>
+                                ${flights.map(f => `<td>${fn(f)}</td>`).join("")}
+                            </tr>`
+                        ).join("")}
+                        <tr>
+                            <td></td>
+                            ${flights.map(f => `<td><a href="booking.html" class="btn btn-primary btn-sm book-btn" data-id="${f.id}"> Book </a></td>`).join("")}
                         </tr>
                     </tbody>
                 </table>
@@ -317,14 +360,14 @@ $(document).ready(function () {
         $("#compareBar").remove();
     };
 
-    /* ── Trip type toggle ── */
+  
     $("#tripTypeGroup button").on("click", function () {
         $("#tripTypeGroup button").removeClass("active btn-primary").addClass("btn-outline-primary");
         $(this).removeClass("btn-outline-primary").addClass("active btn-primary");
         $("#searchRet").prop("disabled", $(this).data("type") !== "round-trip");
     });
 
-    /* ── Swap airports ── */
+
     $("#swapBtn").on("click", function () {
         const fromVal = $("#searchFrom").val();
         const toVal   = $("#searchTo").val();
@@ -333,7 +376,7 @@ $(document).ready(function () {
         showToast("Airports swapped.", "info");
     });
 
-    /* ── Search button ── */
+   
     $("#searchBtn").on("click", function () {
         const from = $("#searchFrom").val();
         const to   = $("#searchTo").val();
@@ -344,7 +387,7 @@ $(document).ready(function () {
         setTimeout(() => { hideSkeleton(); applyFilters(); }, 1000);
     });
 
-    /* ── Live filter events ── */
+ 
     $("#filterPriceRange").on("input", function () {
         $("#filterPriceVal").text("₱" + Number(this.value).toLocaleString());
         applyFilters();
@@ -371,7 +414,17 @@ $(document).ready(function () {
         showToast("Filters cleared.", "info");
     });
 
-    /* ── Init ── */
+    
+    $(document).on("click", ".book-btn", function (e) {
+        e.preventDefault();
+        const flightId = $(this).attr("data-id");
+        if (flightId) {
+            localStorage.setItem("selectedFlightId", flightId);
+        }
+        window.location.href = "booking.html";
+    });
+
+    
     populateAirports();
     populateAirlineFilter();
     setDefaultDate();
