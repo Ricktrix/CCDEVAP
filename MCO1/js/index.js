@@ -80,7 +80,7 @@ $(document).ready(function () {
     const PROMOS = [
         { label: "LIMITED TIME OFFER",    title: "Manila → Cebu",            desc: "Seats from <strong>₱1,199</strong> — Book before Aug 31", bg: "linear-gradient(135deg, #0d6efd, #6610f2)" },
         { label: "BUSINESS CLASS UPGRADE",title: "Fly Business at Economy+ Rates", desc: "Upgrade for just <strong>₱3,500 more</strong>",        bg: "linear-gradient(135deg, #198754, #20c997)" },
-        { label: "ANNIVERSARY PROMO",     title: "20% Off All International",desc: "Use code <strong>SKYWAY20</strong> at checkout",         bg: "linear-gradient(135deg, #dc3545, #fd7e14)" }
+        { label: "ANNIVERSARY PROMO",     title: "20% Off All International",desc: "Use code <strong>PLACEHOLDER20</strong> at checkout",         bg: "linear-gradient(135deg, #dc3545, #fd7e14)" }
     ];
 
     function renderCarousel() {
