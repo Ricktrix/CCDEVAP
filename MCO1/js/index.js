@@ -1,564 +1,224 @@
-/* Home Page Functionality */
+/* =============================================
+   Placeholder - Home Page
+   js/index.js
+   ============================================= */
+
 $(document).ready(function () {
-    /* Configurations and Data */
-    // Dashboard Statistics Data
-    var dashboardStats = {
-        availableFlights: 152,
-        activeBookings: 12487,
-        popularDestinations: 45
-    };
 
-    // Suggested Flights Data
-    var suggestedFlights = [
-        { destination: 'Tokyo', airportCode: 'NRT', price: 890, category: 'New Route', image: 'https://via.placeholder.com/300x200?text=Tokyo' },
-        { destination: 'New York', airportCode: 'JFK', price: 450, category: 'Best Seller', image: 'https://via.placeholder.com/300x200?text=New+York' },
-        { destination: 'London', airprortCode: 'LHR', price: 620, category: 'Limited Seats', image: 'https://via.placeholder.com/300x200?text=London' },
-        { destination: 'Dubai', airportCode: 'DXB', price: 750, category: 'Popular', image: 'https://via.placeholder.com/300x200?text=Dubai' },
-        { destination: 'Paris', airportCode: 'CDG', price: 550, category: 'Best Seller', image: 'https://via.placeholder.com/300x200?text=Paris' },
-        { destination: 'Singapore', airportCode: 'SIN', price: 920, category: 'New Route', image: 'https://via.placeholder.com/300x200?text=Singapore' },
-        { destination: 'Sydney', airportCode: 'SYD', price: 1100, category: 'Popular', image: 'https://via.placeholder.com/300x200?text=Sydney' },
-        { destination: 'Seoul', airportCode: 'ICN', price: 780, category: 'New Route', image: 'https://via.placeholder.com/300x200?text=Seoul' }
-    ];
-
-    // Recently Viewed Flights Data
-    var recentlyViewedFlights = [
-        { destination: 'Tokyo', airportCode: 'NRT', price: 890, lastViewed: '2 hours ago' },
-        { destination: 'London', airportCode: 'LHR', price: 620, lastViewed: '5 hours ago' },
-        { destination: 'Dubai', airportCode: 'DXB', price: 750, lastViewed: '1 day ago' }
-    ];
-
-    // Search Suggestions
-    var searchSuggestions = [
-        'Tokyo', 'New York', 'London', 'Dubai', 'Paris',
-        'Singapore', 'Syndey', 'Seoul', 'Rome', 'Barcelona'
-    ];
-
-    // Travel Alerts
-    var travelAlerts = [
-        '20% Off Flights to Tokyo',
-        'Free Baggage Upgrade This Month',
-        'Double Miles Promotion Active',
-        'New Route to Seoul Now Available'
-    ];
-
-    // State Variables
-    var favoriteCount = 0;
-    var currentAlertIndex = 0;
-    var currentSlide = 1;
-    var totalSlides = 3;
-
-    /* Toast Notifications */
-    // Reusable function: showToast(title, message, type)
-    function showToast(title, message, type) {
-        var toastId = 'toast-' + Date.now();
-        var iconClass = '';
-
-        switch(type) {
-            case 'success' : iconClass = 'bi-check-circle-fill text-success'; break;
-            case 'warning' : iconClass = 'bi-exclamation-triangle-fill text-warning'; break;
-            case 'info' : iconClass = 'bi-info-circle-fill text-info'; break;
-            case 'danger' : iconClass = 'bi-x-circle-fill text-danger'; break;
-            default: iconClass = 'bi-info-circle-fill text-info';
-        }
-
-        var toastHTML = `
-            <div class="toast" id="${toastId}" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header">
-                    <i class="bi ${iconClass} me-2"></i>
-                    <strong class="me-auto"> ${title} </strong>
-                    <button type="button" class="btn-close" data-bs-dismissed="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body"> ${message} </div>
-            </div>
-        `;
-
-        // Create container if not exists
-        if ($('#toastContainer').length === 0) {
-            $('body').append('<div id="toastContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 1100;"></div>');
-        }
-
-        $('#toastContainer').append(toastHTML);
-
-        // Initialize and show toast
-        var toastElement = document.getElementById(toastId);
-        var bsToast = new bootstrap.Toast(toastElement);
-        bsToast.show();
-
-        // Remove after hidden
-        $(toastElement).on('hidden.bs.toast', function() {
-            $(this).remove();
-        });
+    /* ── Populate airport dropdowns ── */
+    function populateAirports() {
+        const opts = AIRPORTS.map(a =>
+            `<option value="${a.code}">${a.code} – ${a.city}</option>`
+        ).join("");
+        $("#quickFrom").html(opts);
+        $("#quickTo").html(opts);
+        $("#quickFrom").val("MNL");
+        $("#quickTo").val("CEB");
     }
 
-    /* Loading Spinner */
-    // Create reusable function: showSpinner()
-    function showSpinner() {
-        if ($('#loadingSpinner').length === 0) {
-            var spinnerHTML = `
-                <div id="loadingSpinner" class="position-fixed top-50 start-50 translate-middle" style="z-index: 9999; display: none;">
-                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-                        <span class="visually-hidden"> Loading... </span>
+    /* ── Set default departure date ── */
+    function setDefaultDate() {
+        const today = new Date().toISOString().split("T")[0];
+        $("#quickDep").val(today);
+    }
+
+    /* ── Trip type toggle ── */
+    $("#tripTypeGroup button").on("click", function () {
+        $("#tripTypeGroup button").removeClass("active btn-primary").addClass("btn-outline-primary");
+        $(this).removeClass("btn-outline-primary").addClass("active btn-primary");
+        if ($(this).data("type") === "round-trip") {
+            $("#quickRet").prop("disabled", false);
+        } else {
+            $("#quickRet").prop("disabled", true).val("");
+        }
+    });
+
+    /* ── Quick search button ── */
+    $("#quickSearchBtn").on("click", function () {
+        const from = $("#quickFrom").val();
+        const to   = $("#quickTo").val();
+        if (!from || !to) {
+            showToast("Please select origin and destination.", "warning");
+            return;
+        }
+        if (from === to) {
+            showToast("Origin and destination cannot be the same.", "warning");
+            return;
+        }
+        showSpinner();
+        setTimeout(() => {
+            window.location.href = "search.html";
+        }, 600);
+    });
+
+    /* ── Stats row ── */
+    function renderStats() {
+        const confirmed = RESERVATIONS.filter(r => r.status === "Confirmed").length;
+        const stats = [
+            { label: "Available Flights",  value: FLIGHTS.length,     color: "primary", icon: "bi-airplane"             },
+            { label: "Active Bookings",    value: confirmed,           color: "success", icon: "bi-ticket-perforated"    },
+            { label: "Destinations",       value: AIRPORTS.length,     color: "warning", icon: "bi-geo-alt-fill"         },
+            { label: "Happy Passengers",   value: "125,000+",          color: "info",    icon: "bi-people-fill"          }
+        ];
+
+        const html = stats.map(s => `
+            <div class="col-6 col-md-3">
+                <div class="card shadow-sm border-0 p-3 text-center hover-card">
+                    <div class="bg-${s.color} bg-opacity-10 rounded p-3 d-inline-block mb-2 mx-auto">
+                        <i class="bi ${s.icon} fs-4 text-${s.color}"></i>
+                    </div>
+                    <h3 class="fw-bold text-${s.color} mb-0">${s.value}</h3>
+                    <p class="text-muted small mb-0">${s.label}</p>
+                </div>
+            </div>`
+        ).join("");
+
+        $("#statsRow").html(html);
+    }
+
+    /* ── Promotions carousel ── */
+    const PROMOS = [
+        { label: "LIMITED TIME OFFER",    title: "Manila → Cebu",            desc: "Seats from <strong>₱1,199</strong> — Book before Aug 31", bg: "linear-gradient(135deg, #0d6efd, #6610f2)" },
+        { label: "BUSINESS CLASS UPGRADE",title: "Fly Business at Economy+ Rates", desc: "Upgrade for just <strong>₱3,500 more</strong>",        bg: "linear-gradient(135deg, #198754, #20c997)" },
+        { label: "ANNIVERSARY PROMO",     title: "20% Off All International",desc: "Use code <strong>SKYWAY20</strong> at checkout",         bg: "linear-gradient(135deg, #dc3545, #fd7e14)" }
+    ];
+
+    function renderCarousel() {
+        const indicators = PROMOS.map((p, i) => `
+            <button type="button" data-bs-target="#promoCarousel" data-bs-slide-to="${i}"
+                    ${i === 0 ? 'class="active"' : ""}></button>`
+        ).join("");
+
+        const slides = PROMOS.map((p, i) => `
+            <div class="carousel-item ${i === 0 ? "active" : ""}">
+                <div style="background:${p.bg}; height:230px; display:flex; align-items:center; padding:2.5rem;">
+                    <div class="text-white">
+                        <p class="small text-warning fw-semibold mb-1">${p.label}</p>
+                        <h3 class="fw-bold mb-2">${p.title}</h3>
+                        <p class="mb-3">${p.desc}</p>
+                        <a href="search.html" class="btn btn-light btn-sm fw-semibold"> Book Now </a>
                     </div>
                 </div>
-            `;
-            $('body').append(spinnerHTML);
-        }
-        $('#loadingSpinner').fadeIn();
+            </div>`
+        ).join("");
+
+        $("#carouselIndicators").html(indicators);
+        $("#carouselInner").html(slides);
     }
 
-    // Create reusable function: hideSpinner()
-    function hideSpinner() {
-        if ($('#loadingSpinner').length > 0) {
-            $('#loadingSpinner').fadeOut();
-        }
-    }
+    /* ── Popular destinations ── */
+    const DOMESTIC_CITIES = ["Cebu", "Davao", "Iloilo", "Bacolod", "Palawan", "Bohol"];
 
-    /* Animation Counters */
-    // Animate Statistics cards from 0 to their final values
-    function animateCounter(elementId, targetValue, prefix, suffix) {
-        var element = $(elementId);
-        if (element.length === 0) return;
+    const DEST_DATA = [
+        { city: "Cebu",         price: "₱1,850",  icon: "bi-water"              },
+        { city: "Davao",        price: "₱2,450",  icon: "bi-tree-fill"          },
+        { city: "Palawan",      price: "₱2,800",  icon: "bi-sun-fill"           },
+        { city: "Singapore",    price: "₱5,400",  icon: "bi-buildings-fill"     },
+        { city: "Tokyo",        price: "₱12,500", icon: "bi-snow"               },
+        { city: "Bangkok",      price: "₱4,900",  icon: "bi-gem"                }
+    ];
 
-        var start = 0;
-        var duration = 1500;
-        var startTime = performance.now();
+    function renderDestinations(filter) {
+        const filtered = DEST_DATA.filter(d => {
+            if (!filter) return true;
+            const isDomestic = DOMESTIC_CITIES.includes(d.city);
+            return filter === "domestic" ? isDomestic : !isDomestic;
+        });
 
-        function update(currentTime) {
-            var elapsed = currentTime - startTime;
-            var progress = Math.min(elapsed / duration, 1);
-            var eased = 1 - Math.pow(1 - progress, 3);
-            var current = Math.floor(start + (targetValue - start) * eased);
-
-            element.text(prefix + current.toLocaleString() + suffix);
-
-            if (progress < 1) {
-                requestAnimationFrame(update);
-            }
+        if (!filtered.length) {
+            $("#destinationsRow").html('<p class="text-muted"> No destinations found. </p>');
+            return;
         }
 
-        requestAnimationFrame(update);
+        const colors = ["primary", "success", "warning", "info", "danger", "secondary"];
+        const html = filtered.map((d, i) => `
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="card border-0 shadow-sm hover-card overflow-hidden"
+                     onclick="window.location.href='search.html'" style="cursor:pointer;">
+                    <div class="bg-${colors[i % colors.length]} bg-opacity-10 text-center py-4">
+                        <i class="bi ${d.icon} fs-1 text-${colors[i % colors.length]}"></i>
+                    </div>
+                    <div class="card-body p-2 text-center">
+                        <div class="fw-semibold small">${d.city}</div>
+                        <div class="text-primary fw-bold small"> from ${d.price} </div>
+                    </div>
+                </div>
+            </div>`
+        ).join("");
+
+        $("#destinationsRow").html(html);
     }
 
-    /* Bootstrap Tooltips */
-    // Initialize all Bootstrap tooltips automatically
-    function initializeToolTips() {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.forEach(function(tooltipTriggerEl) {
-            new bootstrap.Tooltip(tooltipTriggerEl);
-        });
+    /* ── Recently viewed flights ── */
+    function renderRecentFlights() {
+        const recent = FLIGHTS.slice(0, 3);
+        const html = recent.map(f => {
+            const airline = AIRLINES[f.airline];
+            return `
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 hover-card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="rounded p-2 fw-bold text-white"
+                                     style="background:${airline.color}; min-width:42px; text-align:center;">
+                                    ${airline.code}
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">${airline.name}</div>
+                                    <div class="text-muted small">${f.id} · ${f.cabin}</div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <div class="text-center">
+                                    <div class="fw-bold fs-5">${f.dep}</div>
+                                    <div class="text-muted small">${f.from}</div>
+                                </div>
+                                <div class="flex-grow-1 text-center">
+                                    <div class="text-muted small">${f.dur}</div>
+                                    <div class="route-line my-1">
+                                        <hr><i class="bi bi-airplane-fill text-primary"></i><hr>
+                                    </div>
+                                    <div class="text-muted small">${f.stops === 0 ? "Direct" : f.stops + " stop"}</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="fw-bold fs-5">${f.arr}</div>
+                                    <div class="text-muted small">${f.to}</div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <span class="fw-bold text-primary fs-5">${formatPrice(f.price)}</span>
+                                <a href="booking.html" class="btn btn-sm btn-primary"> Book </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }).join("");
+
+        $("#recentFlightsRow").html(html);
     }
 
-    /* Promotional Carousel Control */
-    // Initialize carousel with auto-slide functionality
-    function initializeCarousel() {
-        var carousel = document.getElementById('promoCarousel');
-        if (!carousel) return;
+    /* ── Destination filter ── */
+    $("#destFilter").on("change", function () {
+        renderDestinations($(this).val());
+    });
 
-        // Updates slide indicator
-        function updateIndicator() {
-            if ($('#carouselIndicator').length > 0) {
-                $('#carouselIndicator').text('Promotion ' + currentSlide + ' of ' + totalSlides);
-            }
+    /* ── Newsletter ── */
+    $("#newsletterBtn").on("click", function () {
+        const email = $("#newsletterEmail").val().trim();
+        if (!email || !email.includes("@")) {
+            showToast("Please enter a valid email address.", "warning");
+            return;
         }
+        showToast("Subscribed! Check your inbox for deals.", "success");
+        $("#newsletterEmail").val("");
+    });
 
-        // Handles slide change
-        carousel.addEventListener('slid.bs.carousel', function() {
-            var activeIndex = $('.carousel-item.active').index();
-            currentSlide = activeIndex + 1;
-            updateIndicator();
-        });
+    /* ── Init ── */
+    populateAirports();
+    setDefaultDate();
+    renderStats();
+    renderCarousel();
+    renderDestinations("");
+    renderRecentFlights();
 
-        // Pause on hover
-        $(carousel).hover(
-            function() {
-                $(this).carousel('pause');
-            },
-            function() {
-                $(this).carousel('cycle');
-            }
-        );
-
-        // Auto-slide every 5 seconds
-        setInterval(function () {
-            $('#promoCarousel').carousel('next');
-        }, 5000);
-
-        updateIndicator();
-    }
-
-    /* Dashboard Statistics */
-    // Populate Statistics dynamically
-    function loadStatistics() {
-        animateCounter('#availableFlights', dashboardStats.availableFlights, '', '');
-        animateCounter('#activeBookings', dashboardStats.activeBookings, '', '');
-        animateCounter('#popularDestinations', dashboardStats.popularDestinations, '', '');
-    }
-
-    /* Suggested Flights Section */
-    // Generates flight cards dynamically
-    function loadSuggestedFlights() {
-        var container = $('#suggestedFlightsContainer');
-        if (container.length === 0) return;
-
-        var html = '<div class="row g-4">';
-
-        for (var i = 0; i < suggestedFlights.length; i++) {
-            var flight = suggestedFlights[i];
-            var badgeClass = flight.category === 'Best Seller' ? 'bg-success' :
-                        flight.category === 'Limited Seats' ? 'bg-warning text-dark' :
-                        flight.category === 'New Route' ? 'bg-info' : 'bg-primary';
-
-            html += '<div class="col-md-6 col-lg-3 flight-card" data-destination="' + flight.destination + '">';
-            html += '<div class="card h-100 shadow-sm border-0">';
-            html += '<img src="' + flight.image + '" class="card-img-top" alt="' + flight.destination + '">';
-            html += '<div class="card-body">';
-            html += '<div class="d-flex justify-content-between align-items-start mb-2">';
-            html += '<div><h5 class="card-title mb-0">' + flight.destination + '</h5>';
-            html += '<small class="text-muted">' + flight.airportCode + '</small></div>';
-            html += '<span class="badge ' + badgeClass + '">' + flight.category + '</span>';
-            html += '</div>';
-            html += '<div class="d-flex align-items-center justify-content-between mt-3">';
-            html += '<div><small class="text-muted d-block"> From </small>';
-            html += '<span class="fw-bold text-primary">$' + flight.price + '<span></div>';
-            html += '<div class="d-flex gap-2">';
-            html += '<button class="btn btn-outline-danger btn-sm favorite-btn" data-destination="' + flight.destination + '">';
-            html += '<i class="bi bi-heart"></i></button>';
-            html += '<button class="btn btn-outline-primary btn-sm book-btn" data-destination="' + flight.destination + '"> Book </button>';
-            html += '</div></div></div></div></div>';
-        }
-
-        html += '</div>';
-        container.html(html);
-
-        // Initialize card interactions after loading cards
-        initializeFlightCardInteractions();
-        initializeHoverInteractions();
-    }
-
-    /* Flight Card interactions */
-    // Initialize it
-    function initializeFlightCardInteractions() {
-        // Book Button Click
-        $('.book-btn').on('click', function() {
-            var destination = $(this).data('destination');
-            showToast('Success', 'Redirecting to book flight to ' + destination, 'success');
-            setTimeout(function() {
-                window.location.href = 'booking.html';
-            }, 1500);
-        });
-
-        // Favorite Button Click
-        $('.favorite-btn').on('click', function() {
-            var btn = $(this);
-            var icon = btn.find('i');
-
-            if (icon.hasClass('bi-heart-fill')) {
-                icon.removeClass('bi-hear-fill').addClass('bi-heart');
-                favoriteCount--;
-                showToast('Info', 'Remove from favorites', 'info');
-            } else {
-                icon.removeClass('bi-heart').addClass('bi-heart-fill');
-                favoriteCount++;
-                showToast('Success', 'Added to favorites', 'success');
-            }
-
-            if ($('#favoriteCounter').length > 0) {
-                $('#favoriteCounter').text('Favorites: ' + favoriteCount);
-            }
-        });
-    }
-
-    /* Hover Interactions */
-    // Initialize hover effects on flight cards
-    function initializeHoverInteractions() {
-        $('.flight-card').on('mouseenter', function() {
-            $(this).find('.card').addClass('shadow-lg');
-            $(this).find('.card').css('transform', 'scale(1.02)');
-            $(this).find('.card').css('transition', 'all 0.3s ease');
-        });
-
-        $('.flight-card').on('mouseleave', function() {
-            $(this).find('.card').removeClass('shadow-lg');
-            $(this).find('.card').css('transform', 'scale(1)');
-        });
-    }
-
-    /* Recently Viewed Flights */
-    // Load recently viewed flights
-    function loadRecentlyViewedFlights() {
-        var container = $('#recentlyFlightContainer');
-        if (container.length === 0) return; 
-
-        var html = '<div class="row g-3">';
-
-        for (var i = 0; i < recentlyViewedFlights.length; i++) {
-            var flight = recentlyViewedFlights[i];
-
-            html += '<div class="col-12">';
-            html += '<div class="card border">';
-            html += '<div class="card-body d-flex justify-content-betweeen align-items-center py-2">';
-            html += '<div><h6 class="mb-0">' + flight.destination + '</h6';
-            html += '<small class="text-muted">' + flight.airportCode + ' • ' + flight.lastViewed + '</small></div>';
-            html += '<div class="text-end"><span class="fw-bold text-primary"> $' + flight.price + '</span></div>';
-            html += '</div></div></div>';
-        }
-
-        html += '</div>';
-        container.html(html);
-    }
-    
-    /* Destination Filter */
-    // Initialize Destination Filter 
-    function initializeDestinationFilter() {
-        var filter = $('#destinationFilter');
-        if (filter.length === 0) return;
-        
-        filter.on('change', function() {
-            var selectedDestination = $(this).val();
-            var cards = $('.flight-card');
-            var visibleCount = 0;
-
-            cards.each(function () {
-                var cardDestination = $(this).data('destination');
-
-                // Case insensitive comparison
-                if (selectedDestination === 'all' ||
-                    cardDestination.toLowerCase() === selectedDestination.toLowerCase()) {
-                    $(this).fadeIn(300);
-                    visibleCount++;
-                } else {
-                    $(this).fadeOut(300);
-                }
-            });
-
-            if ($('#flightCount').length > 0) {
-                $('#flightCount').text('Showing ' + visibleCount + ' Flights');
-            }
-            
-            showToast('Info', 'Filtering destinations', 'info');
-        });
-    }
-
-    /* Search Auto-Suggestion */
-    // Initialize search auto-suggestions
-    function initializeSearchSuggestions() {
-        var input = $('#flightSearchInput');
-        var container = $('#suggestionsContainer');
-
-        if (input.length === 0 || container.length === 0) return;
-
-        input.on('input', function() {
-            var query = $(this).val().toLowerCase();
-
-            if (query.length === 0) {
-                container.hide();
-                return;
-            }
-
-            var filtered = searchSuggestions.filter(function(s) {
-                return s.toLowerCase().indexOf(query) !== -1;
-            });
-
-            if (filtered.length === 0) {
-                container.hide();
-                return;
-            }
-
-            var html = '';
-            for (var i = 0; i < filtered.length; i++) {
-                html += '<div class="suggestion-item p-2 border-bottom"> ' + filtered[i] + '</div>';
-            }
-
-            container.html(html).show();
-
-            // Suggestion click handler
-            container.find('.suggestion-item').on('click', function() {
-                input.val($(this).text());
-                container.hide();
-            });
-        });
-
-        // Hide Suggestion when clicking outside
-        $(document).on('click', function(e) {
-            if (!input.is(e.target) && !container.is(e.target)) {
-                container.hide();
-            }
-        });
-    }
-
-    /* Quick Flight Search widget */
-    // Initialize quick search functionality
-    function initializeQuickSearch() {
-        var searchBtn = $('#quickSearchBtn');
-
-        if (searchBtn.length === 0) return;
-
-        searchBtn.on('click', function() {
-            var origin = $('#origin').val();
-            var destination = $('#destination').val();
-            var departure = $('#departure').val();
-
-            // Validation
-            if (!origin || origin === '') {
-                showToast('Warning', 'Please select origin', 'warning');
-                return;
-            }
-
-            if (!destination || destination === '') {
-                showToast('Warning', 'Please select destination', 'warning');
-                return;
-            }
-
-            if (!departure || departure === '') {
-                showToast('Warning', 'Please select departure date', 'warning');
-                return;
-            }
-
-            if (origin === destination) {
-                showToast('Warning', 'Origin and destination cannot be the same', 'warning');
-                return;
-            }
-
-            // Show loading Spinner
-            showSpinner();
-
-            // Wait 1.5s then redirect
-            setTimeout(function() {
-                hideSpinner();
-                showToast('Success', 'Redirecting to Search Flights', 'success');
-
-                setTimeout(function() {
-                    window.location.href = 'search.html';
-                }, 1000);
-            }, 1500);
-        });
-    }
-
-    /* Scroll Animations */
-    // Scroll animations for sections
-    function initializeAnimations() {
-        var sections = ['.hero-banner', '.flight-stats', '.suggested-flights', '.recent-flights'];
-        
-        // Adds fade-in class initially
-        $(sections.join(', ')).addClass('opacity-0');
-
-        // Animate on scroll
-        $(window).on('scroll', function() {
-            $(sections.join(', ')).each(function() {
-                var element = $(this);
-                var position = element.offset().top;
-                var scrollPosition = $(window).scrollTop() + $(window).height;
-
-                if (position < scrollPosition - 100 && !element.hasClass('animated')) {
-                    element.animate({ opacity: 1 }, 500);
-                    element.css('transform', 'translateY(0)');
-                    element.addClass('animated');
-                }
-            });
-        });
-
-        // Trigger initial check
-        $(window).trigger('scroll');
-    }
-
-    /* Responsive UI Features */ 
-    // Initialize responsive UI features
-    function initializeResponsiveUI() {
-        function checkScreenSize() {
-            var screenWidth = $(window).width();
-
-            if (screenWidth < 768) {
-                // Show mobile notice
-                if ($('#mobileNotice').length === 0) {
-                    $('.container').first().prepend('<div id="mobileNotice" class="alert alert-info mb-3"><i class="bi bi-phone me-2"></i> Mobile View Active </div>');
-                }
-            } else {
-                // Hide mobile Notice
-                $('#mobileNotice').remove();
-            }
-        }
-
-        // Initial Check
-        checkScreenSize();
-        // Check on resize
-        $(window).on('resize', checkScreenSize);
-    }
-
-    /* Dark/Light Mode toggle */
-    // Initialize theme toggle
-    function initializeThemeToggle() {
-        var toggleBtn = $('#themeToggle');
-
-        if (toggleBtn.length === 0) return;
-
-        toggleBtn.on('click', function () {
-            var body = $('body');
-            var icon = $(this).find(i);
-
-            if (body.hasClass('dark-mode')) {
-                body.removeClass('dark-mode');
-                icon.removeClass('bi-sun').addClass('bi-moon');
-                showToast('Info', 'Light mode enabled', 'info');
-            } else {
-                body.addClass('dark-mode');
-                icon.removeClass('bi-moon').addClass('bi-sun');
-                showToast('Info', 'Dark mode enabled', 'info');
-            }
-        });
-    }
-
-    /* News Ticker / travel alerts */
-    // Initialize rotating travel alerts
-    function initializeTravelAlerts() {
-        var alertsContainer = $('#travelAlerts');
-        if (alertsContainer.length === 0) return;
-        // Show first alert
-        alertsContainer.text(travelAlerts[0]);
-        // Rotate every 4seconds
-        setInterval(function() {
-            currentAlertIndex = (currentAlertIndex + 1) % travelAlerts.length;
-            alertsContainer.fadeOut(300, function() {
-                $(this).text(travelAlerts[currentAlertIndex]).fadeIn(300);
-            });
-        }, 4000);
-    }
-
-    /* Welcome Toast */
-    // Shows welcome toast on page load
-    function showWelcomeToast() {
-        setTimeout(function() {
-            showToast('Welcome', 'Welcome to Lorem Ipsum!', 'success');
-        }, 1000);
-    }
-
-    /* Error handling utility */
-    // Checks if element exists before manipulation
-    function validateElement(elementId) {
-        return $(elementId).length > 0;
-    }
-
-    /* Page Initialization */
-    // Master initialization function
-    function initializeHomePage() {
-        // Initialize All
-        initializeToolTips();
-        initializeCarousel();
-        loadStatistics();
-        loadSuggestedFlights();
-        loadRecentlyViewedFlights();
-        initializeDestinationFilter();
-        initializeSearchSuggestions();
-        initializeQuickSearch();
-        initializeAnimations();
-        initializeResponsiveUI();
-        initializeThemeToggle();
-        initializeTravelAlerts();
-        showWelcomeToast();
-
-        // Console log for debugging
-        console.log('Homepage initialized successfully');
-    }
-
-    // Execute it
-    initializeHomePage();
 });
