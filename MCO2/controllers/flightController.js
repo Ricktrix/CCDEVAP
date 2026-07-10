@@ -14,5 +14,118 @@ exports.getFlights = async (req, res) => {
     const filter = {};
     if (req.query.origin) { filter.origin = new RegExp(req.query.origin.trim(), 'i'); }
     if (req.query.destination) { filter.destination = new RegExp(req.query.destination.trim(), 'i'); }
-    
-}
+    if (req.query.airline) { filter.airline = new RegExp(req.query.airline.trim(), 'i'); }
+    try {
+        const totalFlights = await Flight.countDocuments(filter);
+        const flights = await Flight.find(filter)
+            .sort({ [sort]: order })
+            .skip((page -1) * limit)
+            .limit(limit);
+        console.log('Fetched', flights.length, 'flights.');
+        return res.status(200).json({
+            success: true,
+            totalFlights,
+            currentPage: page,
+            totalPages: Math.ceil(totalFlights / limit),
+            flights
+        });
+    } catch (error) {
+        console.log('Server error while fetching flights:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+};
+
+exports.getFlightById = async (req, res) => {
+    const { id } = req.params;
+    if (!isValidObjectId(id)) {
+        console.log('Flight lookup failed: Invalid ID.');
+        return res.status(400).json({ success: false, message: 'Invalid flight ID.' });
+    }
+    try {
+        const flight = await Flight.findById(id);
+        if (!flight) {
+            console.log('Flight not found:', id);
+            return res.status(404).json({ success: false, message: 'Fligh not found.' });
+        }
+        console.log('Flight retrieved:', flight.flightNumber);
+        return res.status(200).json({ success: true, data: flight });
+    } catch (error) {
+        console.error('Server error while fetching flight:', error);
+        return res.status(500).json({ success: false, message: 'Interval server error. '});
+    }
+};
+
+exports.searchFlights = async (req, res) => {
+    const { origin, destination, departureDate, airline }= req.query;
+    const filter = { availableSeats: { $gt: 0 } };
+    if (origin) { filter.origin = new RegExp(origin.trim(), 'i'); }
+    if (destination) { filter.destination = new RegExp(destination.trim(), 'i'); }
+    if (airline) { filter.airline = new RegExp(airline.trim(), 'i'); }
+    if (departureDate) {
+        const startDate = new Date(departureDate);
+        const endDate = new Date(departureDate);
+        endDate.setDate(endDate.getDate() + 1);
+        filter.departureDateTime = { $gte: startDate, $lt: endDate };
+    }
+    try {
+        const flights = (await Flight.find(filter)).sort({ departureDateTime: 1 });
+        console.log('Flight search returned', flights.length, 'results(s).');
+        return res.status(200).json({ success: true, count: flights.length, data: flights });
+    } catch (error) {
+        console.error('Server error during flight search:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
+exports.createFlight = async (req, res) => {
+    if (!req.session.user) {
+        console.log('Flight creation failed: User not logged in.');
+        return res.status(401).json({ success: false, message: 'Please login first.' });
+    }
+    if (req.session.user.role !== 'admin') {
+        console.log('Flight creation failed: Unauthorized access.');
+        return res.status(403).json({ success: false, message: 'Access denied.' });
+    }
+    const { flightNumber, airline, origin, destination, departureDateTime, arrivalDateTime, availableSeats, ticketPrice } = req.body;
+    if (!flightNumber || !airline || !origin || !destination || !departureDateTime || !arrivalDateTime || availableSeats === undefined || ticketPrice === undefined) {
+        console.log('Flight creation failed: Missing required fields.');
+        return res.status(400).json({ success: false, message: 'Please fill in all required fields.' });
+    }
+    const flightData = {
+        flightNumber: flightNumber.trim(),
+        airline: airline.trim(),
+        origin: origin.trim(),
+        destination: destination.trim(),
+        departureDateTime: new Date(departureDateTime),
+        arrivalDateTime: new Date(arrivalDateTime),
+        availableSeats: Number(availableSeats),
+        ticketPrice: Number(ticketPrice) 
+    };
+    if (flightData.departureDateTime >= flightData.arrivalDateTime) {
+        console.log('Flight creation failed: Invalid schedule.');
+        return res.status(400).json({ success: false, message: 'Departure date must be before arrival date.' });
+    }
+    if (flightData.availableSeats < 0 || Number.isNaN(flightData.availableSeats)) {
+        console.log('Flight creation failed: Invalid seat count.');
+        return res.status(400).json({ success: false, message: 'Available seats must be zero or greater.' });
+    }
+    if (flightData.ticketPrice < 0 || Number.isNaN(flight.ticketPrice)) {
+        console.log('Flight creation failed: Invalid ticket price.');
+        return res.status(400).json({ success: false, message: 'Ticket price must be zero or greater.' });
+    }
+    try {
+        const existingFlight = await Flight.findOne({ flightNumber: flightData.flightNumber });
+        if (existingFlight) {
+            console.log('Flight creation failed: Flight number already exists.');
+            return res.status(409).json({ success: false, message: 'Flight number already exists.' });
+        }
+        const flight = await Flight.create(flightData);
+        console.log('Flight created:', flight.flightNumber);
+        return res.status(201).json({ success: true, message: 'Flight created successfully.', data: flight });
+    } catch (error) {
+        console.log('Server error during flight creation:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+};
+
+exports.updateFlight = async (req, res) => {};
