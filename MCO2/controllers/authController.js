@@ -56,4 +56,52 @@ exports.register = async (req, res) => {
     }
 };
 
-exports.login = async (req, res) => {}
+exports.login = async (req, res) => {
+    const email = req.body.email?.trim().toLowerCase();
+    const password = req.body.password?.trim();
+    // Validate fields
+    if (!email || !password) {
+        return res.status(400).json({ success: false, message: 'Email and password are required.' });
+    }
+    // Validate email
+    if (!isValidEmail(email)) {
+        return res.status(400).json({ success: false, message: 'Invalid email format.' });
+    }
+    try {
+        // Find the user
+        const user = await User.findOne({ email });
+        if (!user) {
+            console.log('Login failed: User not found.');
+            return res.status(404).json({ success: false, message: 'User does not exist.' });
+        }
+        // Compare password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            console.log('Login failed: Incorrect password.');
+            return res.status(401).json({ success: false, message: 'Incorrect password' });
+        }
+        // Store user session
+        req.session.user = { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role };
+        console.log('User logged in:', user.email);
+        return res.status(200).json({ success: true, message: 'Login successful.', role: user.role });
+    } catch (error) {
+        console.error('Login error:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+};
+
+exports.logout = async (req, res) => {
+    try {
+        req.session.destroy((error) => {
+            if (error) {
+                console.log('Logout error:', error);
+                return res.status(500).json({ success: false, message: 'Internal server error.' });
+            }
+            console.log('User logged out.');
+            return res.status(200).json({ success: true, message: 'Logout successful.' });
+        });
+    } catch (error) {
+        console.error('Logout error:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+}
