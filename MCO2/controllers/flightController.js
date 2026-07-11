@@ -297,3 +297,32 @@ exports.getFlightsByDestination = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Internal server error.' });
     }
 };
+
+exports.updateAvailableSeats = async (req, res) => {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        console.log('Seat update failed: Invalid flight ID.');
+        return res.status(400).json({ success: false, message: 'Invalid flight ID.' });
+    }
+    const { availableSeats } = req.body;
+    if (availableSeats === undefined) {
+        console.log('Seat update failed: Available seats are required.');
+        return res.status(400).json({ success: false, message: 'Available seats are required.' });
+    }
+    const seats = Number(availableSeats);
+    if (Number.isNaN(seats) || seats < 0) {
+        console.log('Seat update failed: Invalid seat count.');
+        return res.status(400).json({ success: false, message: 'Available seats cannot be negative.' });
+    }
+    try {
+        const flight = await Flight.findByIdAndUpdate( req.params.id, { availableSeats: seats }, { new: true, runValidators: true } );
+        if (!flight) {
+            console.log('Seat update failed: Flight not found.');
+            return res.status(404).json({ success: false, message: 'Flight not found.' });
+        }
+        console.log('Available seats updated:', flight.flightNumber, '-', flight.availableSeats);
+        return res.status(200).json({ success: true, message: 'Available seats updated successfully.', data: flight }); 
+    } catch (error) {
+        console.error('Server error while updating available seats:', error);
+        return res.staus(500).json({ success: false, message: 'Internal server error.' });
+    }
+};
