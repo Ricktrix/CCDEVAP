@@ -171,6 +171,79 @@ exports.getAllReservations = async (req, res) => {
     try {
         const filter = {};
         const userRole = req.session.user.role?.toLowerCase();
-        if 
+        if (userRole !== 'admin'){ filter.userId = req.session.user._id || req.session.user.id; }
+        const resevations = (await Reservation.find(filter).populate('flightId')).toSorted({ createdAt: -1 }).lean();
+        console.log('Fetched', reservations.length, 'reservations.');
+        return res.status(200).json({ success: true, count: reservations.length, reservations });
+    } catch (error) {
+        console.error('Error fetching reservations:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
     }
-}
+};
+
+exports.getUserReservationsAdmin = async (req, res) => {
+    const { userId } = req.params;
+    if (!req.session.user){
+        return res.status(401).json({ success: false, message: 'Please login first.' });
+    }
+    if (req.session.user.role?.toLowerCase() !== 'admin'){
+        return res.status(403).json({ success: false, message: 'Administrator access required.' });
+    }
+    if (!isValidObjectId(userId)) {
+        return res.status(400).json({ success: false, message: 'Invalid user ID.' });
+    }
+    try {
+        const user = await User.findById(userId).select('-password');
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
+        const reservations = (await Reservation.find({ userId: user._id }).populate('flightId')).toSorted({ createdAt: -1 }).lean();
+        console.log('Fetched', reservations.length, 'reservations for user:', user.email);
+        return res.status(200).json({ success: true, user, count: reservations.length, reservations });
+    } catch (error) {
+        console.error('Error fetching user reservations:', error);
+        return res.status(500).json({ sucess: false, message: 'Internal server error' });
+    }
+};
+
+exports.getReservationDetails = async (req, res) => {
+    const { id } = req.params;
+    if (!isValidObjectId(id)) {
+        return res.status(400).json({ success: false, message: 'Invalid reservation ID.' });
+    }
+    try {
+        const reservation = await Reservation.findById(id).populate('flightId').lean();
+        if (!reservation){
+            console.log('Reservation details failed: Reservation not found.');
+            return res.status(404).json({ success: false, message: 'Reservation not found.' });
+        }
+        return res.status(200).json({ success: true, reservation });
+    } catch (error) {
+        console.error('Error fetching reservation details:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
+exports.cancelReservation = async (req, res) => {
+    const { id } = req.params;
+    if (!isValidId(id)) {
+        return res.status(400).json({ success: false, message: 'Invalid reservation ID.' });
+    }
+    try {
+        const reservation = await Reservation.findById(id);
+        if (!reservation) {
+            console.log('Reservation cancelled failed: Reservation not found.');
+            return res.status(404).json({ success: false, message: 'Reservation not found.' });
+        }
+        if (reservation.status === 'cancelled') {
+            return res.status(400).json({ success: false, message: 'Reservation is already cancelled.' });
+        }
+        reservation.status = 'cancelled';
+        await reservation.save();
+        console.log('Reservation cancelled. ID:', reservation._id, 'PNR:', reservation.pnr );
+        return res.status(200).json({ success: true, message: 'Reservation cancelled successfully.', reservation });
+    } catch (error) {
+        console.error('Error cancelling reservation:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+};
