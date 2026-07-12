@@ -142,3 +142,43 @@ function isSeatLockExpired(seatLockExpiresAt){
     return expirationDate.getTime() <= Date.now();
 }
 // Pagination helper
+function parsePagination(page, limit){
+    const parsedPage = parseInt(page, 10);
+    const parsedLimit = parseInt(limit, 10);
+    let validPage = 1, validLimit = 10;
+    if (parsedPage >= 1){ validPage = parsedPage; }
+    if (parsedLimit >= 1){ validLimit = parsedLimit; }
+    if (validLimit > 100) { validLimit = 100; }
+    const skip = (validPage - 1) * validLimit;
+    return { page: validPage, limit: validLimit, skip: skip };
+}
+function calculateTotalPages(totalItems, limit){
+    if (!isNonNegativeNumber(totalItems) || !isPositiveInteger(limit)){ return 0; }
+    if (Number(totalItems) === 0){ return 0; }
+    const totalPages = Math.ceil(Number(totalItems) / Number(limit));
+    return totalPages;
+}
+// Sort Helper
+function getSortOrder(order){
+    const normalizedOrder = normalizeString(order).toLocaleLowerCase();
+    if (normalizedOrder === 'desc'){ return -1; }
+    return 1;
+}
+function sanitizeSortField(sortField, allowedFields, defaultField){
+    if (!Array.isArray(allowedFields)){ return defaultField; }
+    if (allowedFields.includes(sortField)){ return sortField; }
+    return defaultField;
+}
+// API helper
+function createSuccessResponse(message, data = null){
+    return { success: true, message: message, data: data };
+}
+function createErrorResponse(message){
+    return { success: false, message: message };
+}
+module.exports = {
+    HTTP_STATUS, PRICING, MEAL_PRICES, SEAT_LOCK_DURATION_MINUTES, normalizeString, normalizeEmail, normalizeSeatNumber, normalizePassportNumber, isValidEmail,
+    isValidSeatNumber, isNonNegativeNumber, isPositiveInteger, generatePNR, generateReservationNumber, roundCurrency, calculateTaxes, calculateBaggageFee, calculateMealFee,
+    calculateSeatSelectionFee, calculateTotalPrice, getSeatLockExpiration, isSeatLockExpired, parsePagination, calculateTotalPages, getSortOrder, sanitizeSortField, createSuccessResponse,
+    createErrorResponse
+};
