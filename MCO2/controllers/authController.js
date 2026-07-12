@@ -8,7 +8,7 @@ const isValidEmail = (email) => {
     return emailRegex.test(email);
 };
 
-exports.register = async (req, res) => {
+exports.registerUser = async (req, res) => {
     const firstName = req.body.firstName?.trim();
     const lastName = req.body.lastName?.trim();
     const email = req.body.email?.trim().toLowerCase();
@@ -43,12 +43,12 @@ exports.register = async (req, res) => {
             return res.status(409).json({ success: false, message: 'Email already exists.' });
         }
         // Hash password
-        const hashedPassword = await bycrypt.hash(password, SALT_ROUNDS);
+        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
         // Create passenger account
         const newUser = new User({ firstName, lastName, email, password: hashedPassword, role: 'passenger' });
 
         await newUser.save();
-        console.log('New passenger registered:', newUser,email);
+        console.log('New passenger registered:', newUser.email);
         return res.status(201).json({ success: true, message: 'Registration successful.' });
     } catch (error) {
         console.log('Registration error:', error);
@@ -56,7 +56,7 @@ exports.register = async (req, res) => {
     }
 };
 
-exports.login = async (req, res) => {
+exports.loginUser = async (req, res) => {
     const email = req.body.email?.trim().toLowerCase();
     const password = req.body.password?.trim();
     // Validate fields
@@ -90,7 +90,7 @@ exports.login = async (req, res) => {
     }
 };
 
-exports.logout = async (req, res) => {
+exports.logoutUser = async (req, res) => {
     try {
         req.session.destroy((error) => {
             if (error) {
@@ -104,4 +104,37 @@ exports.logout = async (req, res) => {
         console.error('Logout error:', error);
         return res.status(500).json({ success: false, message: 'Internal server error.' });
     }
-}
+};
+
+exports.getCurrentUser = async (req, res) => {
+    try {
+        if (!req.session.user) {
+            console.log('Current user request failed: User ir not authorized.');
+            return res.status(404).json({ success: false, message: 'User is not authenticated.' });
+        }
+        const user = await User.findById(req.session.user.id);
+        if (!user) {
+            console.log('Current user request failed: User not found.');
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
+        console.log('Current authenticated user:', user.email);
+        return res.status(200).json({ success: true, user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role } });
+    } catch (error) {
+        console.error('Get current user eroor:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+};
+
+exports.checkAuthStatus = async (req, res) => {
+    try {
+        if (!req.session.user) {
+            console.log('Authentication status: User is not authenticated.');
+            return res.status(200).json({ authenticated: false, user: null });
+        }
+        console.log('Authentication status is authenticated.');
+        return res.status(200).json({ authenticated: true, user: { id: req.session.user.id, firstName: req.session.user.firstName, lastName: req.session.user.lastName, email: req.session.user.email, role: req.session.user.role } });
+    } catch (error) {
+        console.error('Authentication status error:', error);
+        return res.status(500).json({ authenticated: false, user: null, message: 'Internal server error.' });
+    }
+};
