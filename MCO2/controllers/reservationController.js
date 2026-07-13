@@ -186,7 +186,7 @@ exports.confirmReservation = async (req, res) => {
         if (!reservation) {
             return res.status(404).json({ success: false, message: 'Reservation not found.' });
         }
-        reservation.status = 'confirmed';
+        reservation.bookingStatus = 'confirmed';
         await reservation.save();
         console.log('Reservation confirmed. PNR:', reservation.pnr);
         return res.status(200).json({ success: true, message: 'Reservation confirmed successfully.', reservation });
@@ -202,10 +202,10 @@ exports.cancelReservation = async (req, res) => {
         if (!reservation) {
             return res.status(404).json({ success: false, message: 'Reservation not found.' });
         }
-        if (reservation.status === 'cancelled') {
+        if (reservation.bookingStatus === 'cancelled') {
             return res.status(400).json({ success: false, message: 'Reservation is already cancelled.' });
         }
-        reservation.status = 'cancelled';
+        reservation.bookingStatus = 'cancelled';
         await reservation.save();
         console.log('Reservation cancelled. PNR:', reservation.pnr);
         return res.status(200).json({ success: true, message: 'Reservation cancelled successfully.', reservation });
@@ -228,5 +228,51 @@ exports.checkInReservation = async (req, res) => {
         await reservation.save();
         console.log('Passenger checked in. PNR:', reservation.pnr );
         return res.status(200).json({ success: true, message: 'Check-in successful.', reservation });
+    } catch (error) {
+        console.error('Check-in error:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
     }
-}
+};
+
+exports.updatePaymentStatus = async (req, res) => {
+    const { paymentStatus } = req.body;
+    if (!paymentStatus) {
+        return res.status(400).json({ success: false, message: 'Payment status is required.' });
+    }
+    try {
+        const reservation = await Reservation.findById(req.params.id);
+        if (!reservation) {
+            return res.status(404).json({ success: false, message: 'Reservation not found.' });
+        }
+        reservation.paymentStatus = paymentStatus;
+        await reservation.save();
+        console.log('Payment status updated. PNR:', reservation.pnr, 'Status:', paymentStatus );
+        return res.status(200).json({ success: true, message: 'Payment status updated successfully.', reservation });   
+    } catch (error) {
+        console.error('Payment status update error:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+};
+
+exports.getUserReservationsAdmin = async (req, res) => {
+    if (!req.session || !req.session.user) {
+        return res.status(401).json({ success: false, message: 'Please login first.' });
+    }
+    const userRole = req.session.user.role;
+    if (userRole !== 'admin' && userRole !== 'Admin') {
+        return res.status(403).json({ success: false, message: 'Administrator access required.' });
+    }
+    try {
+        const user = await User.findById(req.params.id).select('-password');
+        if (!user) {
+            console.log('Admin reservation lookup failed: User not found.');
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
+        const reservations = (await Reservation.find({ userId: user._id }).populate('flightId')).toSorted({ createdAt: -1 }).lean();
+        console.log('Admin fetched reservations for user:', user.email, 'Count:', reservations.length);
+        return res.status(200).json({ success: true, user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email }, count: reservations.length, reservations });
+    } catch (error) {
+        console.error('Error fetching user reservations:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+};
