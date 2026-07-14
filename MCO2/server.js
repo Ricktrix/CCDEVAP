@@ -1,37 +1,79 @@
 const express = require('express');
-const exphbs = require('express-handlebars');
+const mongoose = require('mongoose');
+const session = require('express-session');
 const app = express();
+const path = require('path');
+const { engine } = require('express-handlebars');
 
-// set static folder
-app.use(express.static(__dirname + "public"));
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const flightRoutes = require('./routes/flightRoutes');
+const reservationRoutes = require('./routes/reservationRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
 
-app.engine("hbs", exphbs.engine({extname: 'hbs'}));
+const { notFound, errorHandler } = require('./middlewares/errorMiddleware');
+const HTTP_STATUS = { OK: 200 };
 
-app.set("view engine", "hbs");
+/* palagay dito yung connection natin to the MongoDB atlas
+const MONGODB_URI = ;
+*/
+const SESSION_SECRET = 'skyjet_session_secret';
 
-app.set("views", "./views");
-app.get('/', (req, res) => {
-    res.redirect('/home');
+// Connection to the database
+const connectDatabase = async function() {
+    try {
+        await mongoose.connection(MONGODB_URI);
+        console.log('MongoDB Atlas connected successfully.');
+    }
+    catch (error) {
+        console.error('MongoDB Atlas connection failed.');
+        console.error(error);
+        process.exit(1);
+    }
+};
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// express sessions
+app.use(session({
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        maxAge: 1000 * 60 * 60 * 24
+    }
+}));
+
+// handlebars
+app.engine('handlebars', engine({ defaultLayout: false }));
+
+app.set('view engine', 'handlebars');
+app.set('views', path.join(__dirname, 'views') );
+
+// configures static files
+app.use('/static', express.static(path.join(__join, 'public')) );
+
+// Root route
+app.get('/', function(req, res){
+    return res.status(HTTP_STATUS.OK).json({ success: true, message: 'SkyJet Airlines Online Ticketing System API is running' });
 });
 
-app.get('/home', (req, res) => {
-    res.render("index", {
-        title: "homepage",
-        name: "Jimmy"
-    });
-})
-app.listen(port, () => {
-    console.log("server now listening on port " + port);
-});
+// application routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/flights', flightRoutes);
+app.use('/api/reservations', reservationRoutes);
+app.use('/api/bookings', bookingRoutes);
 
-// const mongoose = require('mongoose');
+// error middleware
+app.use(notFound);
+app.use(errorHandler);
 
-
-
-/* app.get('/test', (req, res) => {
-    console.log('Test route accessed. Sending response.');
-    res.send('Server working');
-});
+connectDatabase();
 
 const PORT = 3000;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));*/
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
