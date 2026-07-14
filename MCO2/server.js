@@ -10,6 +10,10 @@ const userRoutes = require('./routes/userRoutes');
 const flightRoutes = require('./routes/flightRoutes');
 const reservationRoutes = require('./routes/reservationRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
+const User = require('./models/User');
+const City = require('./models/City');
+const Country = require('./models/Country');
+const Flight = require('./models/Flight');
 
 const { notFound, errorHandler } = require('./middlewares/errorMiddleware');
 const HTTP_STATUS = { OK: 200 };
