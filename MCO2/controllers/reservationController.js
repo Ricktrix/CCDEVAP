@@ -19,7 +19,7 @@ exports.getReservations = async (req, res) => {
     }
     try {
         const userId = getSessionUserId(req);
-        const reservations = await Reservation.find({ userId }).populate('flightId').sort({ createdAt: -1 }).lean();
+        const reservations = await Reservation.find({ user: userId }).populate('flight').sort({ createdAt: -1 }).lean();
         console.log('Fetched', reservations.length, 'reservations for user:', userId );
         return res.status(200).json({ success: true, count: reservations.length, reservations });
     } catch (error) {
@@ -37,7 +37,7 @@ exports.getAllReservations = async (req, res) => {
         return res.status(403).json({ success: false, message: 'Administrator access required.' });
     }
     try {
-        const reservations = (await Reservation.find().populate('flightId').populate('userId', 'firstName lastName email role')).toSorted({ createdAt: -1 }).lean();
+        const reservations = (await Reservation.find().populate('flight').populate('user', 'firstName lastName email role')).toSorted({ createdAt: -1 }).lean();
         console.log('Admin fetched all reservations. Count:', reservations.length );
         return res.status(200).json({ success: true, count: reservations.length, reservations });
     } catch (error) {
@@ -48,7 +48,7 @@ exports.getAllReservations = async (req, res) => {
 
 exports.getReservationById = async (req, res) => {
     try {
-        const reservation = await Reservation.findById(req.params.id).populate('flightId').populate('userId', 'firstName lastName email role').lean();
+        const reservation = await Reservation.findById(req.params.id).populate('flight').populate('user', 'firstName lastName email role').lean();
         if (!reservation) {
             console.log('Reservation lookup failed: Reservation not found.');
             return res.status(404).json({ success: false, message: 'Reservation not found.' });
@@ -64,7 +64,7 @@ exports.getReservationById = async (req, res) => {
 exports.getReservationByPNR = async (req, res) => {
     try {
         const pnr = req.params.pnr.trim().toUpperCase();
-        const reservation = await Reservation.findOne({ pnr }).populate('flightId').populate('userId', 'firstName lastName email role').lean();
+        const reservation = await Reservation.findOne({ pnr }).populate('flight').populate('user', 'firstName lastName email role').lean();
         if (!reservation) {
             console.log('PNR lookup failed:', pnr);
             return res.status(404).json({ success: false, message: 'Reservation not found.' });
@@ -80,7 +80,7 @@ exports.getReservationByPNR = async (req, res) => {
 exports.getReservationByNumber = async (req, res) => {
     try {
         const reservationNumber = req.params.reservationNumber.trim();
-        const reservation = await Reservation.findOne({ reservationNumber }).populate('flightId').populate('userId', 'firstName lastName email role').lean();
+        const reservation = await Reservation.findOne({ reservationNumber }).populate('flight').populate('user', 'firstName lastName email role').lean();
         if (!reservation) {
             console.log('Reservation number lookup failed:', reservationNumber );
             return res.status(404).json({ success: false, message: 'Reservation not found.' });
@@ -112,7 +112,7 @@ exports.createReservation = async (req, res) => {
             return res.status(409).json({ success: false, message: 'No available seats for this flight.' });
         }
         const cleanSeat = seat.trim();
-        const existingReservation = await Reservation.findOne({ flighId, 'seat.code': cleanSeat, status: { $ne: 'cancelled' } });
+        const existingReservation = await Reservation.findOne({ flight: flightId, 'seat.code': cleanSeat, bookingStatus: { $ne: 'Cancelled' } });
         if (existingReservation) {
             console.log('Reservation creation failed: Seat already booked.');
             return res.status(409).json({ success: false, message: `Seat ${cleanSeat} is already booked.` });
@@ -123,9 +123,9 @@ exports.createReservation = async (req, res) => {
         const mealPrice = Number( mealOption && mealOption.price ? mealOption.price : 0 );
         const baggageKg = parseInt(baggage, 10) || 0;
         if (mealPrice < 0 || baggageKg < 0) {
-            return res.status(400).json({ success: false, message: 'Meal price nad baggage weight cannot by negative.' });
+            return res.status(400).json({ success: false, message: 'Meal price and baggage weight cannot be negative.' });
         }
-        const newReservation = new Reservation({ flightId, userId, firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim().toLowerCase(), passport: passport.trim(), seat: { code: cleanSeat, isPremium: isPremiumSeat(cleanSeat) }, meal: { label: mealLabel, price: mealPrice }, baggage: { kg: baggageKg }, bill: { baseFare: flight.price }, pnr });
+        const newReservation = new Reservation({ flight: flightId, user: userId, passengerName: `${firstName.trim()} ${lastName.trim()}`, email: email.trim().toLowerCase(), passportNumber: passport.trim(), seat: { code: cleanSeat, isPremium: isPremiumSeat(cleanSeat) }, meal: { label: mealLabel, price: mealPrice }, baggage: { checkedBaggageKg: baggageKg }, bill: { baseFare: flight.price, taxes: 0 }, pnr, bookingStatus: 'Pending' });
         const savedReservation = await newReservation.save();
         console.log('New reservation created. PNR:', savedReservation.pnr );
         return res.status(201).json({ success: true, message: 'Reservation created successfully.', reservation: savedReservation });
@@ -149,7 +149,7 @@ exports.updateSeat = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Reservation not found.' });
         }
         const cleanSeat = seat.trim();
-        const existingReservation = await Reservation.findOne({ flightId: reservation.flightId, 'seat.code': cleanSeat, status: { $ne: 'cancelled' }, _id: { $ne: reservation._id } });
+        const existingReservation = await Reservation.findOne({ flight: reservation.flight, 'seat.code': cleanSeat, bookingStatus: { $ne: 'Cancelled' }, _id: { $ne: reservation._id } });
         if (existingReservation) {
             return res.status(409).json({ success: false, message: `Seat ${cleanSeat} is already booked.` });
         }
@@ -166,11 +166,11 @@ exports.updateSeat = async (req, res) => {
 
 exports.getAvailableSeats = async (req, res) => {
     try {
-        const reservation = await Reservation.findById(req.params.id).populate('flightId');
+        const reservation = await Reservation.findById(req.params.id).populate('flight');
         if (!reservation) {
             return res.status(404).json({ success: false, message: 'Reservation not found.' });
         }
-        const reservations = await Reservation.find({ flightId: reservation.flightId._id, status: { $ne: 'cancelled' }, _id: { $ne: reservation._id } }).select('seat.code');
+        const reservations = await Reservation.find({ flight: reservation.flight._id, bookingStatus: { $ne: 'Cancelled' }, _id: { $ne: reservation._id } }).select('seat.code');
         const occupiedSeats = reservations.map((item) => { return item.seat.code; });
         console.log('Occupied seats fetched. Count:', occupiedSeats.length);
         return res.status(200).json({ success: true, occupiedSeats });
@@ -186,7 +186,7 @@ exports.confirmReservation = async (req, res) => {
         if (!reservation) {
             return res.status(404).json({ success: false, message: 'Reservation not found.' });
         }
-        reservation.bookingStatus = 'confirmed';
+        reservation.bookingStatus = 'Confirmed';
         await reservation.save();
         console.log('Reservation confirmed. PNR:', reservation.pnr);
         return res.status(200).json({ success: true, message: 'Reservation confirmed successfully.', reservation });
@@ -202,10 +202,10 @@ exports.cancelReservation = async (req, res) => {
         if (!reservation) {
             return res.status(404).json({ success: false, message: 'Reservation not found.' });
         }
-        if (reservation.bookingStatus === 'cancelled') {
+        if (reservation.bookingStatus === 'Cancelled') {
             return res.status(400).json({ success: false, message: 'Reservation is already cancelled.' });
         }
-        reservation.bookingStatus = 'cancelled';
+        reservation.bookingStatus = 'Cancelled';
         await reservation.save();
         console.log('Reservation cancelled. PNR:', reservation.pnr);
         return res.status(200).json({ success: true, message: 'Reservation cancelled successfully.', reservation });
@@ -221,7 +221,7 @@ exports.checkInReservation = async (req, res) => {
         if (!reservation) {
             return res.status(404).json({ success: false, message: 'Reservation not found.' });
         }
-        if (reservation.bookingStatus === 'cancelled') {
+        if (reservation.bookingStatus === 'Cancelled') {
             return res.status(400).json({ success: false, message: 'Cancelled reservation cannot check in.' });
         }
         reservation.checkedIn = true;
@@ -244,7 +244,7 @@ exports.updatePaymentStatus = async (req, res) => {
         if (!reservation) {
             return res.status(404).json({ success: false, message: 'Reservation not found.' });
         }
-        reservation.paymentStatus = paymentStatus;
+        reservation.billing.paymentStatus = paymentStatus;
         await reservation.save();
         console.log('Payment status updated. PNR:', reservation.pnr, 'Status:', paymentStatus );
         return res.status(200).json({ success: true, message: 'Payment status updated successfully.', reservation });   
@@ -268,7 +268,7 @@ exports.getUserReservationsAdmin = async (req, res) => {
             console.log('Admin reservation lookup failed: User not found.');
             return res.status(404).json({ success: false, message: 'User not found.' });
         }
-        const reservations = (await Reservation.find({ userId: user._id }).populate('flightId')).toSorted({ createdAt: -1 }).lean();
+        const reservations = (await Reservation.find({ user: user._id }).populate('flight')).toSorted({ createdAt: -1 }).lean();
         console.log('Admin fetched reservations for user:', user.email, 'Count:', reservations.length);
         return res.status(200).json({ success: true, user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email }, count: reservations.length, reservations });
     } catch (error) {
