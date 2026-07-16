@@ -39,7 +39,7 @@ exports.updateProfile = async (req, res) => {
     const trimmedEmail = email.trim().toLowerCase();
     if (!isValidEmail(trimmedEmail)) {
         console.log('Profile update failed: Invalid email.');
-        return res.status(400).json({ success: false, message: 'Invalid email format' });
+        return res.status(400).json({ success: false, message: 'Invalid email format.' });
     }
     try {
         const existingUser = await User.findOne({
