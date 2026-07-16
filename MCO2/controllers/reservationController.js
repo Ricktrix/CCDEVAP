@@ -1,7 +1,7 @@
 const Reservation = require('../models/Reservation');
 const Flight = require('../models/Flight');
 const User = require('../models/User');
-const { generateUniquePNR } = require('../utils/utils');
+const { generateUniquePNR, generateReservationNumber } = require('../utils/utils');
 
 const PREMIUM_ROWS = new Set([1, 2, 3, 4]);
 const isPremiumSeat = (seatCode) => {
@@ -117,19 +117,44 @@ exports.createReservation = async (req, res) => {
             console.log('Reservation creation failed: Seat already booked.');
             return res.status(409).json({ success: false, message: `Seat ${cleanSeat} is already booked.` });
         }
-        const pnr = await generateUniquePNR();
         const userId = getSessionUserId(req);
+        if (!userId) {
+            console.log('Reservation creation failed: Missing authenticated user session.');
+            return res.status(401).json({ success: false, message: 'Authentication required. Please log in and try again.' });
+        }
+
+        const pnr = await generateUniquePNR();
+        const reservationNumber = generateReservationNumber();
         const mealLabel = mealOption && mealOption.label ? mealOption.label.trim() : 'None';
         const mealPrice = Number( mealOption && mealOption.price ? mealOption.price : 0 );
         const baggageKg = parseInt(baggage, 10) || 0;
         if (mealPrice < 0 || baggageKg < 0) {
             return res.status(400).json({ success: false, message: 'Meal price and baggage weight cannot be negative.' });
         }
-        const newReservation = new Reservation({ flight: flightId, user: userId, passengerName: `${firstName.trim()} ${lastName.trim()}`, email: email.trim().toLowerCase(), passportNumber: passport.trim(), seat: { code: cleanSeat, isPremium: isPremiumSeat(cleanSeat) }, meal: { label: mealLabel, price: mealPrice }, baggage: { checkedBaggageKg: baggageKg }, bill: { baseFare: flight.price, taxes: 0 }, pnr, bookingStatus: 'Pending' });
+
+        const newReservation = new Reservation({
+            flight:            flightId,
+            user:              userId,
+            reservationNumber: reservationNumber,
+            passengerName:     `${firstName.trim()} ${lastName.trim()}`,
+            email:             email.trim().toLowerCase(),
+            passportNumber:    passport.trim(),
+            seat:              { code: cleanSeat, isPremium: isPremiumSeat(cleanSeat) },
+            meal:              { label: mealLabel, price: mealPrice },
+            baggage:           { checkedBaggageKg: baggageKg },
+            bill:              { baseFare: flight.price, taxes: 0 },
+            pnr,
+            bookingStatus:     'Pending'
+        });
+
         const savedReservation = await newReservation.save();
-        console.log('New reservation created. PNR:', savedReservation.pnr );
+        console.log('New reservation created. PNR:', savedReservation.pnr, 'Reservation Number:', savedReservation.reservationNumber );
         return res.status(201).json({ success: true, message: 'Reservation created successfully.', reservation: savedReservation });
     } catch (error) {
+        if (error.name === 'ValidationError') {
+            console.error('Reservation validation failed:', error);
+            return res.status(400).json({ success: false, message: 'Invalid reservation data. Please review your input and try again.' });
+        }
         if (error.code === 11000) {
             return res.status(409).json({ success: false, message: `Seat ${seat} is already booked. Please choose another seat.` });
         }
