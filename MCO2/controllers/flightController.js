@@ -70,10 +70,18 @@ exports.searchFlights = async (req, res) => {
     try {
         const flights = (await Flight.find(filter)).sort({ departureDateTime: 1 });
         console.log('Flight search returned', flights.length, 'results(s).');
-        return res.status(200).json({ success: true, count: flights.length, data: flights });
+        // return res.status(200).json({ success: true, count: flights.length, data: flights });
+        return res.render('views/passenger/search', { 
+        success: true, 
+        flights: flights 
+    });
     } catch (error) {
         console.error('Server error during flight search:', error);
-        return res.status(500).json({ success: false, message: 'Internal server error' });
+        // return res.status(500).json({ success: false, message: 'Internal server error' });
+        return res.status(500).render('views/passenger/search', { 
+        success: false, 
+        message: 'Internal server error occurred while retrieving flights.' 
+    });
     }
 };
 
@@ -87,6 +95,7 @@ exports.createFlight = async (req, res) => {
         return res.status(403).json({ success: false, message: 'Access denied.' });
     }
     const { flightNumber, airline, origin, destination, departureDateTime, arrivalDateTime, availableSeats, ticketPrice } = req.body;
+    const seatsInput = req.body.seatCapacity !== undefined ? req.body.seatCapacity : req.body.availableSeats;
     if (!flightNumber || !airline || !origin || !destination || !departureDateTime || !arrivalDateTime || availableSeats === undefined || ticketPrice === undefined) {
         console.log('Flight creation failed: Missing required fields.');
         return res.status(400).json({ success: false, message: 'Please fill in all required fields.' });
@@ -99,7 +108,9 @@ exports.createFlight = async (req, res) => {
         departureDateTime: new Date(departureDateTime),
         arrivalDateTime: new Date(arrivalDateTime),
         availableSeats: Number(availableSeats),
-        ticketPrice: Number(ticketPrice) 
+        ticketPrice: Number(ticketPrice),
+        seatCapacity: Number(seatsInput),
+        seatsAvailable: Number(seatsInput)
     };
     if (flightData.departureDateTime >= flightData.arrivalDateTime) {
         console.log('Flight creation failed: Invalid schedule.');
@@ -109,7 +120,7 @@ exports.createFlight = async (req, res) => {
         console.log('Flight creation failed: Invalid seat count.');
         return res.status(400).json({ success: false, message: 'Available seats must be zero or greater.' });
     }
-    if (flightData.ticketPrice < 0 || Number.isNaN(flight.ticketPrice)) {
+    if (flightData.ticketPrice < 0 || Number.isNaN(flightData.ticketPrice)) {
         console.log('Flight creation failed: Invalid ticket price.');
         return res.status(400).json({ success: false, message: 'Ticket price must be zero or greater.' });
     }
