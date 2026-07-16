@@ -1,4 +1,5 @@
 const express = require('express');
+const Flight = require('../models/Flight'); 
 const router = express.Router();
 const FlightController = require('../controllers/flightController');
 
@@ -9,10 +10,29 @@ router.get('/', (req, res, next) => {
 });
 
 // Search flights
+/* Old Code */
+// router.get('/search', (req, res, next) => {
+//     console.log('Running flight search.');
+//     FlightController.searchFlights(req, res, next);
+// });
+
+router.get('/search', async (req, res) => {
+    try {
+        res.render('passenger/search', { 
+            flights: [], 
+            user: req.session.user 
+        });
+    } catch (error) {
+        console.error('Error rendering search page:', error);
+        res.render('passenger/search', { flights: [] });
+    }
+});
+
 router.get('/search', (req, res, next) => {
-    console.log('Running flight search.');
+    console.log('Background API database query executing.');
     FlightController.searchFlights(req, res, next);
 });
+
 
 // Retrieve available flights
 router.get('/available', (req, res, next) => {
