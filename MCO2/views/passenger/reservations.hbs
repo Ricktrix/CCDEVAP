@@ -408,13 +408,24 @@
     async function loadReservations() {
         try {
             const res  = await fetch('/api/reservations');
+            if (!res.ok) {
+                let data = null;
+                try { data = await res.json(); } catch (_e) {
+                    data = null;
+                }
+                const message = data?.message || 'Could not load reservations. Please log in or try again later.';
+                document.getElementById('resLoading').innerHTML =
+                    `<div class="alert alert-warning"><i class="bi bi-exclamation-triangle-fill me-2"></i>${message}</div>`;
+                return;
+            }
             const data = await res.json();
-            allReservations = data.reservations || [];
+            allReservations = Array.isArray(data.reservations) ? data.reservations : [];
             renderStats(allReservations);
             applyFilters();
-        } catch (_) {
+        } catch (error) {
+            console.error('Failed to load reservations:', error);
             document.getElementById('resLoading').innerHTML =
-                '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Could not load reservations.</div>';
+                '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Could not load reservations due to a network error.</div>';
         }
     }
 
