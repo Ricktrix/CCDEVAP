@@ -109,7 +109,7 @@ exports.logoutUser = async (req, res) => {
 exports.getCurrentUser = async (req, res) => {
     try {
         if (!req.session.user) {
-            console.log('Current user request failed: User ir not authorized.');
+            console.log('Current user request failed: User is not authorized.');
             return res.status(404).json({ success: false, message: 'User is not authenticated.' });
         }
         const user = await User.findById(req.session.user.id);
@@ -120,7 +120,7 @@ exports.getCurrentUser = async (req, res) => {
         console.log('Current authenticated user:', user.email);
         return res.status(200).json({ success: true, user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role } });
     } catch (error) {
-        console.error('Get current user eroor:', error);
+        console.error('Get current user error:', error);
         return res.status(500).json({ success: false, message: 'Internal server error.' });
     }
 };

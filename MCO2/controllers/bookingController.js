@@ -18,10 +18,10 @@ exports.getSeatAvailability = async (req, res) => {
             console.log('Seat availability failed: Flight not found.');
             return res.status(404).json({ success: false, message: 'Flight not found.' });
         }
-        const reservations = await Reservation.find({ flightId: flight._id, status: { $ne: 'cancelled' } }).select('seat.code');
-        const occupiedSeats = reservations.map((reservation) => { return reservation.seat.code; });
+        const reservations = await Reservation.find({ flight: flight._id, bookingStatus: { $ne: 'Cancelled' } }).select('seat.code');
+        const occupiedSeats = reservations.map((reservation) => reservation.seat.code);
         console.log('Seat availability loaded for flight:', flight.flightNumber, 'Occupied seats:', occupiedSeats.length);
-        return res.status(200).json({ success: true, flightId: flight._id, seatCapacity: flight.seatCapacity, availableSeats: flight.availableSeats, occupriedSeats }); 
+        return res.status(200).json({ success: true, flightId: flight._id, seatCapacity: flight.seatCapacity, availableSeats: flight.availableSeats, occupiedSeats });
     } catch (error) {
         console.error('Error fetching seat availability:', error);
         return res.status(500).json({ success: false, message: 'Internal server error.' });
@@ -66,22 +66,34 @@ exports.createBooking = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Flight not found.' });
         }
         const now = new Date();
-        if (new Date(flight.schedule < now) < now) {
+        if (new Date(flight.schedule) < now) {
             console.log('Booking creation failed: Flight already departed.');
             return res.status(400).json({ success: false, message: 'Booking failed. This flight has already departed.' });
         }
         const trimmedSeat = seat.trim();
-        const existingReservation = await Reservation.findOne({ flightId, 'seat.code': trimmedSeat, status: { $ne: 'cancelled' } });
-        if (!existingReservation) {
+        const existingReservation = await Reservation.findOne({ flight: flightId, 'seat.code': trimmedSeat, bookingStatus: { $ne: 'Cancelled' } });
+        if (existingReservation) {
             console.log('Booking creation failed: Seat already booked.');
             return res.status(409).json({ success: false, message: `Seat ${trimmedSeat} is already booked.`});
         }
         const pnr = await generateUniquePNR();
         const userId = getSessionUserId(req);
         const mealLabel = mealOption && mealOption.label ? mealOption.label : 'None';
-        const mealPrice = Number( mealOption && mealOption.price ? mealOption.price : 0);
+        const mealPrice = Number(mealOption && mealOption.price ? mealOption.price : 0);
         const baggageKg = parseInt(baggage, 10) || 0;
-        const newBooking = new Reservation({ flightId, userId, firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim().toLowerCase(), passport: passport.trim(), seat: { code: trimmedSeat, isPremium: isPremiumSeat(trimmedSeat)}, meals: { label: mealLabel, price: mealPrice }, baggage: { kg: baggageKg }, bill: { baseFare: flight.price }, pnr, status: 'pending' });
+        const newBooking = new Reservation({
+            flight: flightId,
+            user: userId,
+            passengerName: `${firstName.trim()} ${lastName.trim()}`,
+            email: email.trim().toLowerCase(),
+            passportNumber: passport.trim(),
+            seat: { code: trimmedSeat, isPremium: isPremiumSeat(trimmedSeat) },
+            meal: { label: mealLabel, price: mealPrice },
+            baggage: { checkedBaggageKg: baggageKg },
+            bill: { baseFare: flight.price, taxes: 0 },
+            pnr,
+            bookingStatus: 'Pending'
+        });
         const savedBooking = await newBooking.save();
         console.log('Pending booking created. PNR:', savedBooking.pnr, 'Flight:', flight.flightNumber);
         return res.status(201).json({ success: true, message: 'Pending booking created successfully.', booking: savedBooking });
@@ -97,7 +109,7 @@ exports.createBooking = async (req, res) => {
 
 exports.getBookingSummary = async (req, res) => {
     try {
-        const booking = await Reservation.findById(req.params.id).populate('flgihtId').populate('userId', '-passwprd').lean();
+        const booking = await Reservation.findById(req.params.id).populate('flight').populate('user', '-password').lean();
         if (!booking) {
             console.log('Booking summary failed: Booking not found.');
             return res.status(404).json({ success: false, message: 'Booking not found.' });
@@ -117,19 +129,19 @@ exports.confirmBooking = async (req, res) => {
             console.log('Booking confirmation failed: Booking not found.');
             return res.status(404).json({ success: false, message: 'Booking not found.' });
         }
-        if (booking.bookingStatus === 'cancelled') {
+        if (booking.bookingStatus === 'Cancelled') {
             return res.status(400).json({ success: false, message: 'Cancelled booking cannot be confirmed.' });
         }
-        if (booking.bookingStatus === 'confirmed') {
+        if (booking.bookingStatus === 'Confirmed') {
             return res.status(400).json({ success: false, message: 'Booking is already confirmed.' });
         }
-        booking.status = 'confirmed';
+        booking.bookingStatus = 'Confirmed';
         const confirmedBooking = await booking.save();
         console.log('Booking confirmed. PNR:', confirmedBooking.pnr);
         return res.status(200).json({ success: true, message: 'Booking confirmed successfully.', booking: confirmedBooking });
     } catch (error) {
         console.error('Booking confirmation error:', error);
-        return res.status(500).json({ succes: false, message: 'Internal server error.' });
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
     }
 };
 
@@ -160,16 +172,16 @@ exports.cancelPendingBooking = async (req, res) => {
     try {
         const booking = await Reservation.findById(req.params.id);
         if (!booking) {
-            console.log('Booking creation failed: Booking not found.');
+            console.log('Booking cancellation failed: Booking not found.');
             return res.status(404).json({ success: false, message: 'Booking not found.' });
         }
-        if (booking.bookingStatus === 'cancelled') {
-            return res.status(400),json({ success: false, message: 'Booking is already cancelled.' });
+        if (booking.bookingStatus === 'Cancelled') {
+            return res.status(400).json({ success: false, message: 'Booking is already cancelled.' });
         }
-        if (booking.bookingStatus !== 'pending') {
+        if (booking.bookingStatus !== 'Pending') {
             return res.status(400).json({ success: false, message: 'Only pending bookings can be cancelled.' });
         }
-        booking.bookingStatus = 'cancelled';
+        booking.bookingStatus = 'Cancelled';
         if (booking.seatLocked) {
             booking.seatLocked.isLocked = false;
             booking.seatLocked.expiresAt = null;
