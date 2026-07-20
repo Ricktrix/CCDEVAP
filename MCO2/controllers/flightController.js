@@ -56,32 +56,54 @@ exports.getFlightById = async (req, res) => {
 };
 
 exports.searchFlights = async (req, res) => {
-    const { origin, destination, departureDate, airline }= req.query;
-    const filter = { availableSeats: { $gt: 0 } };
-    if (origin) { filter.origin = new RegExp(origin.trim(), 'i'); }
-    if (destination) { filter.destination = new RegExp(destination.trim(), 'i'); }
-    if (airline) { filter.airline = new RegExp(airline.trim(), 'i'); }
+    const { origin, destination, departureDate, airline } = req.query;
+
+    const filter = {
+        seatsAvailable: { $gt: 0 }   // use seatsAvailable consistently
+    };
+
+    if (origin) {
+        filter.origin = new RegExp(origin.trim(), 'i');
+    }
+
+    if (destination) {
+        filter.destination = new RegExp(destination.trim(), 'i');
+    }
+
+    if (airline) {
+        filter.airline = new RegExp(airline.trim(), 'i');
+    }
+
     if (departureDate) {
         const startDate = new Date(departureDate);
         const endDate = new Date(departureDate);
         endDate.setDate(endDate.getDate() + 1);
-        filter.departureDateTime = { $gte: startDate, $lt: endDate };
+
+        filter.departureDateTime = {
+            $gte: startDate,
+            $lt: endDate
+        };
     }
+
     try {
-        const flights = (await Flight.find(filter)).sort({ departureDateTime: 1 });
-        console.log('Flight search returned', flights.length, 'results(s).');
-        // return res.status(200).json({ success: true, count: flights.length, data: flights });
-        return res.render('views/passenger/search', { 
-        success: true, 
-        flights: flights 
-    });
+        const flights = await Flight.find(filter)
+            .sort({ departureDateTime: 1 });
+
+        console.log(`Flight search returned ${flights.length} result(s).`);
+
+        return res.status(200).json({
+            success: true,
+            count: flights.length,
+            flights: flights
+        });
+
     } catch (error) {
         console.error('Server error during flight search:', error);
-        // return res.status(500).json({ success: false, message: 'Internal server error' });
-        return res.status(500).render('views/passenger/search', { 
-        success: false, 
-        message: 'Internal server error occurred while retrieving flights.' 
-    });
+
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error.'
+        });
     }
 };
 
@@ -282,7 +304,7 @@ exports.getFlightsByOrigin = async (req, res) => {
         return res.status(400).json({ success: false, message: 'Origin is required.' });
     }
     try {
-        const flights = await Flights.find({
+        const flights = await Flight.find({
             origin: new RegExp(`^${origin}$`, 'i') }).sort({ departureDateTime: 1 });
             console.log('Fetched', flights.length, 'flights from:', origin);
             return res.status(200).json({ success: true, count: flights.length, data: flights });

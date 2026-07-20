@@ -16,18 +16,8 @@ router.get('/', (req, res, next) => {
 //     FlightController.searchFlights(req, res, next);
 // });
 
-router.get('/search', async (req, res) => {
-    try {
-        res.render('passenger/search', { 
-            flights: [], 
-            user: req.session.user 
-        });
-    } catch (error) {
-        console.error('Error rendering search page:', error);
-        res.render('passenger/search', { flights: [] });
-    }
-});
-
+// API endpoint (returns JSON)
+// Search flights (JSON API)
 router.get('/search', (req, res, next) => {
     console.log('Background API database query executing.');
     FlightController.searchFlights(req, res, next);

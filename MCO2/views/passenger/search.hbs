@@ -305,7 +305,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         const data = await res.json();
         
         // Feed the live MongoDB Atlas array results straight into your frontend renderer
-        allFlights = data.data || [];
+        allFlights = data.flights || [];
         renderResults(allFlights);
     } catch (err) {
         console.error("Initial flight fetch failed:", err);
