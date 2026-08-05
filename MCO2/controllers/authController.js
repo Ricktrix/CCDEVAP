@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
+const { logActivity } = require('../utils/auditLogger');
 
 const SALT_ROUNDS = 10;
 
@@ -48,6 +49,17 @@ exports.registerUser = async (req, res) => {
         const newUser = new User({ firstName, lastName, email, password: hashedPassword, role: 'passenger' });
 
         await newUser.save();
+
+        await logActivity(
+            req,
+            {
+                username: newUser.email,
+                role: newUser.role
+            },
+            'User Registration',
+            `New passenger account registered: ${newUser.email}`
+        );
+
         console.log('New passenger registered:', newUser.email);
         return res.status(201).json({ success: true, message: 'Registration successful.' });
     } catch (error) {
@@ -82,6 +94,17 @@ exports.loginUser = async (req, res) => {
         }
         // Store user session
         req.session.user = { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role };
+
+        await logActivity(
+            req,
+            {
+                username: user.email,
+                role: user.role
+            },
+            'User Login',
+            `${user.firstName} ${user.lastName} logged into the system.`
+        );
+
         console.log('User logged in:', user.email);
         return res.status(200).json({ success: true, message: 'Login successful.', role: user.role });
     } catch (error) {
@@ -92,6 +115,20 @@ exports.loginUser = async (req, res) => {
 
 exports.logoutUser = async (req, res) => {
     try {
+        const currentUser = req.session.user;
+
+        if (currentUser) {
+            await logActivity(
+                req,
+                {
+                    username: currentUser.email,
+                    role: currentUser.role
+                },
+                'User Logout',
+                `${currentUser.firstName} ${currentUser.lastName} logged out of the system.`
+            );
+        }
+
         req.session.destroy((error) => {
             if (error) {
                 console.log('Logout error:', error);

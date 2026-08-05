@@ -1,5 +1,6 @@
 const Flight = require('../models/Flight');
 const mongoose = require('mongoose');
+const { logActivity } = require('../utils/auditLogger');
 
 // Check if current user is an admin
 const isAdmin = (req) => { return req.session.user && req.session.user.role === 'admin' };
@@ -153,6 +154,17 @@ exports.createFlight = async (req, res) => {
             return res.status(409).json({ success: false, message: 'Flight number already exists.' });
         }
         const flight = await Flight.create(flightData);
+
+        await logActivity(
+            req,
+            {
+                username: req.session.user.email,
+                role: req.session.user.role
+            },
+            'Flight Created',
+            `Flight ${flight.flightNumber} (${flight.origin} -> ${flight.destination}) was created.`
+        );
+
         console.log('Flight created:', flight.flightNumber);
         return res.status(201).json({ success: true, message: 'Flight created successfully.', data: flight });
     } catch (error) {
@@ -214,6 +226,15 @@ exports.updateFlight = async (req, res) => {
             console.log('Flight update failed: Flight not found.');
             return res.status(404).json({ success: false, message: 'Flight not found.' });
         }
+        await logActivity(
+            req,
+            {
+                username: req.session.user.email,
+                role: req.session.user.role
+            },
+            'Flight Updated',
+            `Flight ${flight.flightNumber} was updated.`
+        );
         console.log('Flight updated:', flight.flightNumber);
         return res.status(200).json({ success: true, message: 'Flight updated successfully.', data: flight });
     } catch (error) {
@@ -241,6 +262,15 @@ exports.deleteFlight = async (req, res) => {
             console.log('Flight deletion failed: Flight not found.');
             return res.status(404).json({ success: false, message: 'Flight not found.' });
         }
+        await logActivity(
+            req,
+            {
+                username: req.session.user.email,
+                role: req.session.user.role
+            },
+            'Flight Deleted',
+            `Flight ${flight.flightNumber} (${flight.origin} -> ${flight.destination}) was deleted.`
+        );
         console.log('Flight deleted:', flight.flightNumber);
         return res.status(200).json({ success: true, message: 'Flight deleted successfully.' });
     } catch (error) {

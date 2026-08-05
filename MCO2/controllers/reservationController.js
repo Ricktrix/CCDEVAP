@@ -2,6 +2,7 @@ const Reservation = require('../models/Reservation');
 const Flight = require('../models/Flight');
 const User = require('../models/User');
 const { generateUniquePNR, generateReservationNumber } = require('../utils/utils');
+const { logActivity } = require('../utils/auditLogger');
 
 const PREMIUM_ROWS = new Set([1, 2, 3, 4]);
 const isPremiumSeat = (seatCode) => {
@@ -148,6 +149,15 @@ exports.createReservation = async (req, res) => {
         });
 
         const savedReservation = await newReservation.save();
+        await logActivity(
+            req,
+            {
+                username: req.session.user.email,
+                role: req.session.user.role
+            },
+            'Registration Created',
+            `Reservation ${savedReservation.reservationNumber} (PNR: ${savedReservation.pnr}) was created for Flight ${flight.flightNumber}.`
+        );
         console.log('New reservation created. PNR:', savedReservation.pnr, 'Reservation Number:', savedReservation.reservationNumber );
         return res.status(201).json({ success: true, message: 'Reservation created successfully.', reservation: savedReservation });
     } catch (error) {
@@ -213,6 +223,15 @@ exports.confirmReservation = async (req, res) => {
         }
         reservation.bookingStatus = 'Confirmed';
         await reservation.save();
+        await logActivity(
+            req,
+            {
+                username: req.session.user.email,
+                role: req.session.user.role
+            },
+            'Reservation Confirmed',
+            `Reservation ${reservation.reservationNumber} (PNR: ${reservation.pnr}) was confirmed.`
+        );
         console.log('Reservation confirmed. PNR:', reservation.pnr);
         return res.status(200).json({ success: true, message: 'Reservation confirmed successfully.', reservation });
     } catch (error) {
@@ -232,6 +251,15 @@ exports.cancelReservation = async (req, res) => {
         }
         reservation.bookingStatus = 'Cancelled';
         await reservation.save();
+        await logActivity(
+            req,
+            {
+                username: req.session.user.email,
+                role: req.session.user.role
+            },
+            'Reservation Cancelled',
+            `Reservation ${reservation.reservationNumber} (PNR: ${reservation.pnr}) was cancelled.`
+        );
         console.log('Reservation cancelled. PNR:', reservation.pnr);
         return res.status(200).json({ success: true, message: 'Reservation cancelled successfully.', reservation });
     } catch (error) {
@@ -251,6 +279,15 @@ exports.checkInReservation = async (req, res) => {
         }
         reservation.checkedIn = true;
         await reservation.save();
+        await logActivity(
+            req,
+            {
+                username: req.session.user.email,
+                role: req.session.user.role
+            },
+            'Passenger Check-In',
+            `Passenger checked in for reservation ${reservation.reservationNumber} (PNR: ${reservation.pnr}).`
+        );
         console.log('Passenger checked in. PNR:', reservation.pnr );
         return res.status(200).json({ success: true, message: 'Check-in successful.', reservation });
     } catch (error) {

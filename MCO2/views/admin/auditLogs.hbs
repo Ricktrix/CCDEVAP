@@ -1,0 +1,274 @@
+<div class="container py-4">
+
+    {{!-- Page Header --}}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-journal-text"></i>
+                Audit Trail Logs
+            </h2>
+            <p class="text-muted mb-0">
+                View and monitor important user activities performed throughout the system.
+            </p>
+        </div>
+        <a href="/admin/dashboard" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Dashboard
+        </a>
+    </div>
+
+    {{!-- Adminstrator Information --}}
+    <div class="card mb-4">
+        <div class="card-header">
+            <strong>Administrator Information</strong>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Administrator:</strong>
+                    {{currentUser.firstName}}
+                    {{currentUser.lastName}}
+                </div>
+                <div class="col-md-6">
+                    <strong>Role:</strong>
+                    {{#if currentUser.role}}
+                        <span class="badge bg-danger">
+                            {{currentUser.role}}
+                        </span>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{!-- Search --}}
+   <div class="card mb-4">
+        <div class="card-header">
+            <strong>Search Audit Logs</strong>
+        </div>
+        <div class="card-body">
+            <form action="/api/audit/search" method="GET">
+                <div class="input-group">
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="keyword"
+                        placeholder="Search username, activity or details..."
+                    >
+                    <button class="btn btn-primary" type="submit">
+                        <i class="bi bi-search"></i>
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <strong>Filter Audit Logs</strong>
+        </div>
+        <div class="card-body">
+            <form action="/api/audit/filter" method="GET">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Username</label>
+                        <input
+                            type="text"
+                            name="username"
+                            class="form-control"
+                        >
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Activity</label>
+                        <input
+                            type="text"
+                            name="activity"
+                            class="form-control"
+                        >
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">User Role</label>
+                        <select
+                            name="userRole"
+                            class="form-select"
+                        >
+                            <option value="">All</option>
+                            <option value="Admin">Admin</option>
+                            <option value="User">User</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Date From</label>
+                        <input
+                            type="date"
+                            name="startDate"
+                            class="form-control"
+                        >
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Date To</label>
+                        <input
+                            type="date"
+                            name="endDate"
+                            class="form-control"
+                        >
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        <i class="bi bi-funnel"></i>
+                        Filter
+                    </button>
+                    <a
+                        href="/api/audit/view"
+                        class="btn btn-outline-secondary"
+                    >
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Audit Log Table -->
+    <div class="card">
+        <div class="card-header">
+            <strong>Audit Log Records</strong>
+        </div>
+        <div class="card-body">
+            {{#if logs}}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Date &amp; Time</th>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Activity</th>
+                                <th>Details</th>
+                                <th>Method</th>
+                                <th>Request URL</th>
+                                <th>IP Address</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each logs}}
+                                <tr>
+                                    <td>{{@index}}</td>
+                                    <td>{{this.createdAt}}</td>
+                                    <td>{{this.username}}</td>
+                                    <td>
+                                        {{#if (eq this.userRole "Admin")}}
+                                            <span class="badge bg-danger">
+                                                Admin
+                                            </span>
+                                        {{else}}
+                                            <span class="badge bg-primary">
+                                                User
+                                            </span>
+                                        {{/if}}
+                                    </td>
+                                    <td>
+                                        {{#if (eq this.activity "User Login")}}
+                                            <span class="badge bg-success">{{this.activity}}</span>
+                                        {{else if (eq this.activity "User Logout")}}
+                                            <span class="badge bg-secondary">{{this.activity}}</span>
+                                        {{else if (eq this.activity "Flight Created")}}
+                                            <span class="badge bg-primary">{{this.activity}}</span>
+                                        {{else if (eq this.activity "Flight Updated")}}
+                                            <span class="badge bg-warning text-dark">{{this.activity}}</span>
+                                        {{else if (eq this.activity "Flight Deleted")}}
+                                            <span class="badge bg-danger">{{this.activity}}</span>
+                                        {{else if (eq this.activity "Reservation Created")}}
+                                            <span class="badge bg-info text-dark">{{this.activity}}</span>
+                                        {{else if (eq this.activity "Reservation Cancelled")}}
+                                            <span class="badge bg-dark">{{this.activity}}</span>
+                                        {{else if (eq this.activity "Booking Created")}}
+                                            <span class="badge bg-primary">{{this.activity}}</span>
+                                        {{else if (eq this.activity "Booking Cancelled")}}
+                                            <span class="badge bg-danger">{{this.activity}}</span>
+                                        {{else}}
+                                            <span class="badge bg-secondary">{{this.activity}}</span>
+                                        {{/if}}
+                                    </td>
+                                    <td>{{this.details}}</td>
+                                    <td>
+                                        {{#if (eq this.requestMethod "GET")}}
+                                            <span class="badge bg-primary">GET</span>
+                                        {{else if (eq this.requestMethod "POST")}}
+                                            <span class="badge bg-success">POST</span>
+                                        {{else if (eq this.requestMethod "PUT")}}
+                                            <span class="badge bg-warning text-dark">PUT</span>
+                                        {{else if (eq this.requestMethod "PATCH")}}
+                                            <span class="badge bg-dark">PATCH</span>
+                                        {{else if (eq this.requestMethod "DELETE")}}
+                                            <span class="badge bg-danger">DELETE</span>
+                                        {{else}}
+                                            <span class="badge bg-secondary">
+                                                {{this.requestMethod}}
+                                            </span>
+                                        {{/if}}
+                                    </td>
+                                    <td>{{this.requestURL}}</td>
+                                    <td>{{this.ipAddress}}</td>
+                                    <td>
+                                        <a
+                                            href="/api/audit/{{this._id}}"
+                                            class="btn btn-sm btn-primary"
+                                            title="View Audit Log"
+                                        >
+                                            <i class="bi bi-eye"></i>
+                                            View
+                                        </a>
+                                    </td>
+                                </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            {{else}}
+                <div class="alert alert-info mb-0">
+                    <i class="bi bi-info-circle"></i>
+                    No audit logs found.
+                </div>
+            {{/if}}
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {{#if totalPages}}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {{#if (eq currentPage 1)}}disabled{{/if}}">
+                    <a
+                        class="page-link"
+                        href="/api/audit/view?page={{subtract currentPage 1}}"
+                    >
+                        Previous
+                    </a>
+                </li>
+                <li class="page-item active">
+                    <span class="page-link">
+                        {{currentPage}}
+                    </span>
+                </li>
+                <li class="page-item {{#if (eq currentPage totalPages)}}disabled{{/if}}">
+                    <a
+                        class="page-link"
+                        href="/api/audit/view?page={{add currentPage 1}}"
+                    >
+                        Next
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    {{/if}}
+</div>
