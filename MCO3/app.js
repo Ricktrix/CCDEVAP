@@ -132,7 +132,7 @@ app.use('/static', express.static(path.join(__dirname, 'public')));
       ──────────────────────────────────────────── */
 app.use(function (req, res, next) {
     res.locals.user = req.session.user || null;
-    res.locals.isAdmin = req.session.user?.role === 'admin';
+    res.locals.isAdmin = req.session.user.role === 'admin';
     next();
 });
 
