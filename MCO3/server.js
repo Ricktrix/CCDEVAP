@@ -23,4 +23,4 @@ const connectDatabase = async function () {
 
 connectDatabase();
 
-app.listen(PORT, () => console.log(`Server running on http://10.2.14.5:${PORT}`));
+app.listen(PORT, () => console.log(`Server running on http://103.231.240.130:${PORT}`));
