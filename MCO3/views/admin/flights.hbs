@@ -1,0 +1,679 @@
+                                        <th> Arrival </th>
+                                        <th> Seats </th>
+                                        <th> Price </th>
+                                        <th class="text-end pe-3"> Actions </th>
+                                 </tr>
+                             </thead>
+                          <tbody id="flightsTableBody">
+                                 <tr><td colspan="8" class="text-center py-4">
+                                     <div class="spinner-border text-primary
+spinner-border-sm me-2"></div>
+                                     Loading flights…
+                                 </td></tr>
+                          </tbody>
+                      </table>
+                 </div>
+                 <div class="d-flex justify-content-between
+align-items-center px-3 py-3 border-top flex-wrap gap-2">
+                      <div class="text-muted small"
+id="flightPaginationInfo"></div>
+                      <nav><ul class="pagination pagination-sm mb-0"
+id="flightPagination"></ul></nav>
+                 </div>
+             </div>
+        </div>
+
+
+    </div>
+</section>
+
+
+<!-- Add Flight Modal -->
+<div class="modal fade" id="addFlightModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+             <div class="modal-header bg-primary text-white">
+                 <h5 class="modal-title"><i class="bi bi-plus-circle
+me-2"></i> Add New Flight </h5>
+                 <button type="button" class="btn-close btn-close-white"
+data-bs-dismiss="modal"></button>
+             </div>
+             <div class="modal-body p-4">
+                 <div id="addFlightError" class="alert alert-danger d-none
+small py-2">
+                      <i class="bi bi-exclamation-triangle-fill
+me-2"></i><span id="addFlightErrorMsg"></span>
+                 </div>
+                 <div class="row g-3">
+                      <div class="col-md-4">
+                       <label class="form-label fw-semibold small">
+Flight Number <span class="text-danger">*</span></label>
+                       <input type="text" class="form-control"
+id="afNumber" placeholder="e.g. SW101">
+                   </div>
+                   <div class="col-md-4">
+                       <label class="form-label fw-semibold small">
+Airline <span class="text-danger">*</span></label>
+                       <input type="text" class="form-control"
+id="afAirline" placeholder="e.g. Polaris Air">
+                   </div>
+                   <div class="col-md-4">
+                       <label class="form-label fw-semibold small">
+Origin <span class="text-danger">*</span></label>
+                       <input type="text" class="form-control"
+id="afOrigin" placeholder="e.g. Manila">
+                   </div>
+                   <div class="col-md-4">
+                       <label class="form-label fw-semibold small">
+Destination <span class="text-danger">*</span></label>
+                       <input type="text" class="form-control"
+id="afDest" placeholder="e.g. Cebu">
+                   </div>
+                   <div class="col-md-4">
+                       <label class="form-label fw-semibold small">
+Departure Date &amp; Time <span class="text-danger">*</span></label>
+                       <input type="datetime-local" class="form-control"
+id="afDep">
+                   </div>
+                   <div class="col-md-4">
+                       <label class="form-label fw-semibold small">
+Arrival Date &amp; Time <span class="text-danger">*</span></label>
+                       <input type="datetime-local" class="form-control"
+id="afArr">
+                   </div>
+                   <div class="col-md-4">
+                       <label class="form-label fw-semibold small"> Seat
+Capacity <span class="text-danger">*</span></label>
+                       <input type="number" class="form-control"
+id="afCapacity" placeholder="e.g. 120" min="1">
+                      </div>
+                      <div class="col-md-4">
+                           <label class="form-label fw-semibold small">
+Ticket Price (₱) <span class="text-danger">*</span></label>
+                           <input type="number" class="form-control"
+id="afPrice" placeholder="e.g. 2500" min="0">
+                      </div>
+                  </div>
+             </div>
+             <div class="modal-footer">
+                  <button class="btn btn-secondary" data-bs-dismiss="modal">
+Cancel </button>
+                  <button class="btn btn-primary fw-semibold"
+id="saveAddFlightBtn">
+                      <span id="addFlightBtnText"><i class="bi
+bi-plus-circle me-1"></i> Add Flight </span>
+                      <span id="addFlightSpinner" class="d-none">
+                           <span class="spinner-border spinner-border-sm
+me-1"></span> Adding…
+                      </span>
+                  </button>
+             </div>
+         </div>
+    </div>
+</div>
+
+
+<!-- Edit Flight Modal -->
+<div class="modal fade" id="editFlightModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+         <div class="modal-content">
+             <div class="modal-header bg-warning">
+                  <h5 class="modal-title"><i class="bi bi-pencil-fill
+me-2"></i> Edit Flight </h5>
+                  <button type="button" class="btn-close"
+data-bs-dismiss="modal"></button>
+             </div>
+             <div class="modal-body p-4">
+                  <input type="hidden" id="efId">
+                  <div id="editFlightError" class="alert alert-danger d-none
+small py-2">
+                     <i class="bi bi-exclamation-triangle-fill
+me-2"></i><span id="editFlightErrorMsg"></span>
+                  </div>
+                  <div class="row g-3">
+                     <div class="col-md-4">
+                           <label class="form-label fw-semibold small">
+Flight Number </label>
+                           <input type="text" class="form-control"
+id="efNumber">
+                     </div>
+                     <div class="col-md-4">
+                           <label class="form-label fw-semibold small">
+Airline </label>
+                           <input type="text" class="form-control"
+id="efAirline">
+                     </div>
+                     <div class="col-md-4">
+                           <label class="form-label fw-semibold small">
+Origin </label>
+                           <input type="text" class="form-control"
+id="efOrigin">
+                     </div>
+                     <div class="col-md-4">
+                           <label class="form-label fw-semibold small">
+Destination </label>
+                           <input type="text" class="form-control"
+id="efDest">
+                     </div>
+                     <div class="col-md-4">
+                           <label class="form-label fw-semibold small">
+Departure </label>
+                           <input type="datetime-local" class="form-control"
+id="efDep">
+                     </div>
+                     <div class="col-md-4">
+                           <label class="form-label fw-semibold small">
+Arrival </label>
+                           <input type="datetime-local" class="form-control"
+id="efArr">
+                     </div>
+                      <div class="col-md-4">
+                           <label class="form-label fw-semibold small">
+Available Seats </label>
+                           <input type="number" class="form-control"
+id="efSeatCapacity" name="seatCapacity" min="1">
+                      </div>
+                      <div class="col-md-4">
+                           <label class="form-label fw-semibold small">
+Ticket Price (₱) </label>
+                           <input type="number" class="form-control"
+id="efPrice" min="0">
+                      </div>
+                  </div>
+             </div>
+             <div class="modal-footer">
+                  <button class="btn btn-secondary" data-bs-dismiss="modal">
+Cancel </button>
+                  <button class="btn btn-warning fw-semibold"
+id="saveEditFlightBtn">
+                      <span id="editFlightBtnText"><i class="bi bi-save
+me-1"></i> Save Changes </span>
+                      <span id="editFlightSpinner" class="d-none">
+                           <span class="spinner-border spinner-border-sm
+me-1"></span> Saving…
+                      </span>
+                  </button>
+             </div>
+         </div>
+    </div>
+</div>
+
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteFlightModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+         <div class="modal-content">
+             <div class="modal-header bg-danger text-white">
+                  <h5 class="modal-title"><i class="bi bi-trash-fill
+me-2"></i> Delete Flight </h5>
+                  <button type="button" class="btn-close btn-close-white"
+data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body text-center py-4">
+                    <i class="bi bi-exclamation-triangle-fill text-danger"
+style="font-size:2.5rem;"></i>
+                    <p class="mt-3 mb-1"> Delete flight </p>
+                    <strong class="text-primary"
+id="deleteFlightNo"></strong>?
+                    <p class="text-muted small mt-2"> This cannot be undone.
+</p>
+              </div>
+              <div class="modal-footer justify-content-center gap-2">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">
+Cancel </button>
+                    <button class="btn btn-danger fw-semibold"
+id="confirmDeleteFlightBtn">
+                       <span id="deleteFltBtnText"><i class="bi bi-trash
+me-1"></i> Delete </span>
+                       <span id="deleteFltSpinner" class="d-none">
+                           <span class="spinner-border spinner-border-sm
+me-1"></span>
+                       </span>
+                    </button>
+              </div>
+           </div>
+    </div>
+</div>
+
+
+<script>
+    let allFlights       = [];
+    let filteredFlts = [];
+    let flightToDelete = null;
+    let currentPage      = 1;
+    const PER_PAGE       = 10;
+
+
+    // ── Format datetime for input ──
+    function toInputDT(d) {
+           if (!d) return '';
+           const dt = new Date(d);
+           return dt.toISOString().slice(0, 16);
+    }
+    function fmtDT(d) {
+        return d ? new Date(d).toLocaleString('en-PH', { month:'short',
+day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+    }
+
+
+    // ── Stats ──
+    function renderStats(list) {
+        const available = list.filter(f => f.seatsAvailable > 0).length;
+        const full          = list.filter(f => f.seatsAvailable === 0).length;
+        const stats = [
+             { label:'Total Flights',       value: list.length,
+color:'primary', icon:'bi-airplane-fill'        },
+             { label:'With Seats',           value: available,
+color:'success', icon:'bi-check-circle-fill'},
+             { label:'Full Flights',        value: full,
+color:'danger',    icon:'bi-x-circle-fill'      },
+        ];
+        document.getElementById('flightStatsRow').innerHTML = stats.map(s => `
+             <div class="col-6 col-md-3">
+                  <div class="card border-0 shadow-sm p-3 text-center">
+                      <div class="bg-${s.color} bg-opacity-10 rounded p-2
+d-inline-block mb-2 mx-auto">
+                            <i class="bi ${s.icon} fs-5 text-${s.color}"></i>
+                      </div>
+                      <div class="fw-bold fs-5
+text-${s.color}">${s.value}</div>
+                      <div class="text-muted small">${s.label}</div>
+                  </div>
+             </div>`).join('');
+    }
+
+
+    // ── Render table ──
+    function renderTable() {
+        const start        = (currentPage - 1) * PER_PAGE;
+        const page         = filteredFlts.slice(start, start + PER_PAGE);
+        const total        = filteredFlts.length;
+        const totalPg = Math.ceil(total / PER_PAGE);
+        if (!page.length) {
+            document.getElementById('flightsTableBody').innerHTML =
+                   '<tr><td colspan="8" class="text-center text-muted py-4"><i class="bi bi-airplane me-2"></i>No flights found.</td></tr>';
+            document.getElementById('flightPaginationInfo').textContent =
+'No results';
+            document.getElementById('flightPagination').innerHTML = '';
+            return;
+        }
+
+
+        document.getElementById('flightsTableBody').innerHTML = page.map(f => {
+            const seatsClass = f.seatsAvailable <= 0 ? 'text-danger' :
+f.seatsAvailable <= 10 ? 'text-warning' : 'text-success';
+            return `
+            <tr>
+                   <td class="ps-3 fw-semibold small">${f.flightNumber}</td>
+                   <td class="small">${f.airline}</td>
+                   <td class="small"><i class="bi bi-arrow-right text-muted
+me-1"></i>${f.origin} → ${f.destination}</td>
+                   <td class="small">${fmtDT(f.departureDateTime)}</td>
+                   <td class="small">${fmtDT(f.arrivalDateTime)}</td>
+                   <td class="small ${seatsClass}">${f.seatsAvailable} /
+${f.seatCapacity}</td>
+                   <td class="small fw-bold text-primary">₱${(f.ticketPrice
+|| 0).toLocaleString()}</td>
+                   <td class="text-end pe-3">
+                       <div class="btn-group btn-group-sm">
+                           <button class="btn btn-outline-warning"
+onclick="openEditFlight('${f._id}')" title="Edit">
+                                <i class="bi bi-pencil-fill"></i>
+                           </button>
+                           <button class="btn btn-outline-danger"
+onclick="promptDeleteFlight('${f._id}','${f.flightNumber}')"
+title="Delete">
+                                <i class="bi bi-trash-fill"></i>
+                           </button>
+                       </div>
+                   </td>
+            </tr>`;
+          }).join('');
+
+
+          document.getElementById('flightPaginationInfo').textContent =
+              `Showing ${start + 1}–${Math.min(start + PER_PAGE, total)} of
+${total} flights`;
+
+
+          let pgHtml = `<li class="page-item
+${currentPage===1?'disabled':''}">
+              <a class="page-link" href="#"
+data-pg="${currentPage-1}">‹</a></li>`;
+          for (let i = 1; i <= totalPg; i++) {
+              pgHtml += `<li class="page-item
+${i===currentPage?'active':''}">
+                    <a class="page-link" href="#"
+data-pg="${i}">${i}</a></li>`;
+          }
+          pgHtml += `<li class="page-item
+${currentPage===totalPg?'disabled':''}">
+              <a class="page-link" href="#"
+data-pg="${currentPage+1}">›</a></li>`;
+          document.getElementById('flightPagination').innerHTML = pgHtml;
+    }
+
+
+    document.getElementById('flightPagination').addEventListener('click',
+function (e) {
+          e.preventDefault();
+          const a = e.target.closest('a[data-pg]');
+          if (!a) return;
+          const pg   = parseInt(a.dataset.pg);
+          const max = Math.ceil(filteredFlts.length / PER_PAGE);
+          if (pg < 1 || pg > max) return;
+          currentPage = pg;
+          renderTable();
+    });
+
+
+    // ── Filter ──
+    function applyFlightFilters() {
+          const q          =
+document.getElementById('flightSearch').value.toLowerCase();
+        const airline =
+document.getElementById('flightAirlineFilter').value;
+        const sort        = document.getElementById('flightSort').value;
+
+
+        filteredFlts = allFlights.filter(f => {
+              if (q && !f.flightNumber.toLowerCase().includes(q) &&
+                       !f.airline.toLowerCase().includes(q) &&
+                       !(f.origin + ' ' +
+f.destination).toLowerCase().includes(q)) return false;
+              if (airline && f.airline !== airline) return false;
+              return true;
+        }).sort((a, b) => {
+              if (sort === 'ticketPrice')      return a.ticketPrice -
+b.ticketPrice;
+              if (sort === 'flightNumber')     return
+a.flightNumber.localeCompare(b.flightNumber);
+              return new Date(a.departureDateTime) - new
+Date(b.departureDateTime);
+        });
+
+
+        currentPage = 1;
+        renderTable();
+    }
+
+
+    // ── Load flights ──
+    async function loadFlights() {
+        try {
+              const res    = await fetch('/api/flights?limit=200');
+              const data = await res.json();
+              allFlights = data.flights || [];
+
+
+              // Populate airline filter
+              const airlines = [...new Set(allFlights.map(f =>
+f.airline))].sort();
+              document.getElementById('flightAirlineFilter').innerHTML =
+                  '<option value="">All Airlines</option>' +
+                  airlines.map(a => `<option
+value="${a}">${a}</option>`).join('');
+
+
+              renderStats(allFlights);
+             applyFlightFilters();
+        } catch (_) {
+             document.getElementById('flightsTableBody').innerHTML =
+                 '<tr><td colspan="8" class="text-center text-danger py-4"><i class="bi bi-exclamation-triangle-fill me-2"></i>Failed to load flights.</td></tr>';
+        }
+    }
+
+
+    // ── Add flight ──
+    document.getElementById('saveAddFlightBtn').addEventListener('click',
+async function () {
+        const totalCapacity =
+Number(document.getElementById('afCapacity').value);
+        const body = {
+             flightNumber:
+document.getElementById('afNumber').value.trim(),
+             airline:
+document.getElementById('afAirline').value.trim(),
+             origin:
+document.getElementById('afOrigin').value.trim(),
+             destination:
+document.getElementById('afDest').value.trim(),
+             departureDateTime: document.getElementById('afDep').value,
+             arrivalDateTime:    document.getElementById('afArr').value,
+             availableSeats:    document.getElementById('afCapacity').value,
+             seatCapacity:      document.getElementById('afCapacity').value,
+             ticketPrice:       document.getElementById('afPrice').value,
+             seatCapacity:       totalCapacity,
+             availableSeats:     totalCapacity
+        };
+
+
+        const errDiv = document.getElementById('addFlightError');
+        const errMsg = document.getElementById('addFlightErrorMsg');
+        errDiv.classList.add('d-none');
+
+
+        if (!body.flightNumber || !body.airline || !body.origin ||
+!body.destination ||
+             !body.departureDateTime || !body.arrivalDateTime ||
+!body.availableSeats || !body.ticketPrice) {
+              errMsg.textContent = 'Please fill in all required fields.';
+              errDiv.classList.remove('d-none');
+              return;
+        }
+
+
+
+document.getElementById('addFlightBtnText').classList.add('d-none');
+
+
+document.getElementById('addFlightSpinner').classList.remove('d-none');
+        this.disabled = true;
+
+
+        try {
+              const res    = await fetch('/api/flights', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+              });
+              const data = await res.json();
+              if (data.success) {
+
+
+bootstrap.Modal.getInstance(document.getElementById('addFlightModal')).hid
+e();
+                    showToast(`Flight ${body.flightNumber} added!`,
+'success');
+
+
+['afNumber','afAirline','afOrigin','afDest','afDep','afArr','afCapacity',' afPrice']
+                        .forEach(id => document.getElementById(id).value =
+'');
+                    loadFlights();
+              } else {
+                    errMsg.textContent = data.message || 'Could not add flight.';
+                    errDiv.classList.remove('d-none');
+              }
+        } catch (_) {
+              errMsg.textContent = 'Network error. Please try again.';
+              errDiv.classList.remove('d-none');
+        } finally {
+document.getElementById('addFlightBtnText').classList.remove('d-none');
+
+
+document.getElementById('addFlightSpinner').classList.add('d-none');
+                this.disabled = false;
+          }
+    });
+
+
+    // ── Edit flight ──
+    function openEditFlight(id) {
+          const f = allFlights.find(x => x._id === id);
+          if (!f) return;
+          document.getElementById('efId').value        = f._id;
+          document.getElementById('efNumber').value    = f.flightNumber;
+          document.getElementById('efAirline').value = f.airline;
+          document.getElementById('efOrigin').value    = f.origin;
+          document.getElementById('efDest').value      = f.destination;
+          document.getElementById('efDep').value       =
+toInputDT(f.departureDateTime);
+          document.getElementById('efArr').value       =
+toInputDT(f.arrivalDateTime);
+          document.getElementById('efSeats').value     = f.seatsAvailable;
+          document.getElementById('efPrice').value     = f.ticketPrice;
+
+
+document.getElementById('editFlightError').classList.add('d-none');
+          new
+bootstrap.Modal(document.getElementById('editFlightModal')).show();
+    }
+
+
+    document.getElementById('saveEditFlightBtn').addEventListener('click',
+async function () {
+          const id     = document.getElementById('efId').value;
+          const seatingInputVal =
+Number(document.getElementbyId('efSeats').value);
+          const body = {
+                flightNumber:
+document.getElementById('efNumber').value.trim(),
+                airline:
+document.getElementById('efAirline').value.trim(),
+             origin:
+document.getElementById('efOrigin').value.trim(),
+             destination:
+document.getElementById('efDest').value.trim(),
+             departureDateTime: document.getElementById('efDep').value,
+             arrivalDateTime:       document.getElementById('efArr').value,
+             availableSeats:        document.getElementById('efSeats').value,
+             ticketPrice:           document.getElementById('efPrice').value,
+             seatCapacity:          seatingInputVal,
+             availableSeats:        seatingInputVal
+        };
+
+
+        const errDiv = document.getElementById('editFlightError');
+        const errMsg = document.getElementById('editFlightErrorMsg');
+        errDiv.classList.add('d-none');
+
+
+
+document.getElementById('editFlightBtnText').classList.add('d-none');
+
+
+document.getElementById('editFlightSpinner').classList.remove('d-none');
+        this.disabled = true;
+
+
+        try {
+             const res    = await fetch(`/api/flights/${id}`, {
+                   method: 'PUT',
+                   headers: { 'Content-Type': 'application/json' },
+                   body: JSON.stringify(body)
+             });
+             const data = await res.json();
+             if (data.success) {
+
+
+bootstrap.Modal.getInstance(document.getElementById('editFlightModal')).hi
+de();
+                   showToast('Flight updated successfully!', 'success');
+                   loadFlights();
+             } else {
+                   errMsg.textContent = data.message || 'Could not update flight.';
+                   errDiv.classList.remove('d-none');
+             }
+          } catch (_) {
+                errMsg.textContent = 'Network error. Please try again.';
+                errDiv.classList.remove('d-none');
+          } finally {
+
+
+document.getElementById('editFlightBtnText').classList.remove('d-none');
+
+
+document.getElementById('editFlightSpinner').classList.add('d-none');
+                this.disabled = false;
+          }
+    });
+
+
+    // ── Delete flight ──
+    function promptDeleteFlight(id, flightNo) {
+          flightToDelete = id;
+          document.getElementById('deleteFlightNo').textContent = flightNo;
+          new
+bootstrap.Modal(document.getElementById('deleteFlightModal')).show();
+    }
+
+
+
+document.getElementById('confirmDeleteFlightBtn').addEventListener('click'
+, async function () {
+          if (!flightToDelete) return;
+
+
+document.getElementById('deleteFltBtnText').classList.add('d-none');
+
+
+document.getElementById('deleteFltSpinner').classList.remove('d-none');
+          this.disabled = true;
+
+
+          try {
+                const res   = await fetch(`/api/flights/${flightToDelete}`, {
+method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+
+
+bootstrap.Modal.getInstance(document.getElementById('deleteFlightModal')).
+hide();
+                    showToast('Flight deleted.', 'danger');
+                    loadFlights();
+                    } else {
+                        showToast(data.message || 'Could not delete flight.',
+'danger');
+                    }
+              } catch (_) {
+                    showToast('Network error. Please try again.', 'danger');
+              } finally {
+
+
+document.getElementById('deleteFltBtnText').classList.remove('d-none');
+
+
+document.getElementById('deleteFltSpinner').classList.add('d-none');
+                    this.disabled = false;
+                    flightToDelete = null;
+              }
+       });
+
+
+       // ── Event listeners ──
+       document.getElementById('flightSearch').addEventListener('input',
+applyFlightFilters);
+
+
+document.getElementById('flightAirlineFilter').addEventListener('change',
+applyFlightFilters);
+       document.getElementById('flightSort').addEventListener('change',
+applyFlightFilters);
+
+
+document.getElementById('clearFlightFilters').addEventListener('click',
+function () {
+              document.getElementById('flightSearch').value = '';
+              document.getElementById('flightAirlineFilter').value = '';
+              applyFlightFilters();
+       });
+
+
+       // ── Init ──
+       loadFlights();
+</script>
+
+
+

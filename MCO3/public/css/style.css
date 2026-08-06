@@ -1,0 +1,140 @@
+/* =============================================
+      Polaris Airlines - Global Stylesheet
+      public/css/style.css
+      ============================================= */
+
+
+/* ── Variables ── */
+:root {
+       --primary:       #0d6efd;
+       --success:       #198754;
+       --danger:        #dc3545;
+       --warning:       #ffc107;
+       --info:          #0dcaf0;
+       --bg:            #f8f9fa;
+       --radius:        10px;
+       --shadow-sm:     0 2px 8px rgba(0,0,0,.07);
+       --shadow-md:     0 4px 20px rgba(0,0,0,.11);
+       --transition: .18s ease;
+}
+
+
+/* ── Base ── */
+body {
+       background-color: var(--bg);
+       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+       font-size: .95rem;
+}
+
+
+/* ── Hover card ── */
+.hover-card {
+       transition: transform var(--transition), box-shadow var(--transition);
+       cursor: pointer;
+}
+.hover-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md) !important;
+}
+
+
+/* ── Navbar active link ── */
+.nav-link.active {
+    font-weight: 600;
+}
+
+
+/* ── Seat map cells ── */
+.seat-map-cell {
+    transition: transform .12s ease;
+    user-select: none;
+}
+.seat-map-cell:hover:not([style*="not-allowed"]) {
+    transform: scale(1.1);
+}
+
+
+/* ── Profile panels ── */
+.profile-panel {
+    /* shown/hidden via d-none toggled by JS */
+}
+
+
+/* ── Skeleton loading ── */
+.skeleton-loading {
+    background: linear-gradient(90deg, #e0e0e0 25%, #f5f5f5 50%, #e0e0e0
+75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 6px;
+}
+@keyframes shimmer {
+    0%   { background-position:    200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+
+/* ── Fade-in animation ── */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in-up {
+    animation: fadeInUp .32s ease both;
+}
+
+
+/* ── Flash alerts below navbar ── */
+.alert.rounded-0 {
+    border-radius: 0 !important;
+}
+
+
+/* ── Booking stepper ── */
+.step-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #dee2e6;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: .85rem;
+    flex-shrink: 0;
+    transition: all .2s ease;
+}
+.step-circle.active { background: var(--primary); color: #fff; }
+.step-circle.done     { background: var(--success);   color: #fff; }
+
+
+.step-line       { flex: 1; height: 2px; background: #dee2e6; }
+.step-line.done { background: var(--success); }
+
+
+/* ── Price summary sidebar ── */
+.sticky-sidebar {
+    position: sticky;
+    top: 80px;
+}
+
+
+/* ── Toast container ── */
+#toastContainer {
+    z-index: 1100;
+}
+
+
+/* ── Table tweaks ── */
+.table > :not(caption) > * > * {
+       vertical-align: middle;
+}
+
+
+/* ── Responsive ── */
+@media (max-width: 767px) {
+       .sticky-sidebar { position: static; }
+}
+
+

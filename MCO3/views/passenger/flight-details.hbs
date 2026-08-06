@@ -1,0 +1,632 @@
+<section class="bg-light min-vh-100 py-4">
+       <div class="container">
+
+
+               <!-- Breadcrumb -->
+               <nav aria-label="breadcrumb" class="mb-3">
+                      <ol class="breadcrumb small">
+                 <li class="breadcrumb-item"><a href="/flights/search"
+class="text-decoration-none">Search Flights</a></li>
+                 <li class="breadcrumb-item active"> Book Flight </li>
+            </ol>
+        </nav>
+
+
+        <!-- Flight Summary Card -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-primary text-white py-3">
+                 <h5 class="fw-bold mb-0">
+                     <i class="bi bi-airplane-fill me-2"></i>
+                     {{flight.airline}} · {{flight.flightNumber}}
+                 </h5>
+            </div>
+            <div class="card-body">
+                 <div class="row g-3 align-items-center">
+                     <div class="col-md-3 text-center">
+                         <div class="fw-bold fs-3">{{depTime}}</div>
+                         <div class="fw-semibold">{{flight.origin}}</div>
+                         <div class="text-muted small">{{depDate}}</div>
+                     </div>
+                     <div class="col-md-3 text-center">
+                         <div class="text-muted small">{{duration}}</div>
+                         <i class="bi bi-airplane-fill text-primary fs-4
+d-block my-1"></i>
+                         <span class="badge bg-success"> Direct </span>
+                     </div>
+                     <div class="col-md-3 text-center">
+                         <div class="fw-bold fs-3">{{arrTime}}</div>
+                         <div
+class="fw-semibold">{{flight.destination}}</div>
+                         <div class="text-muted small">{{arrDate}}</div>
+                     </div>
+                     <div class="col-md-3 text-end">
+                         <div class="fw-bold fs-3
+text-primary">₱{{flight.ticketPrice}}</div>
+                         <div class="small {{#if
+lowSeats}}text-danger{{else}}text-success{{/if}}">
+                              <i class="bi bi-person-fill
+me-1"></i>{{flight.seatsAvailable}} seats left
+                            </div>
+                      </div>
+                   </div>
+             </div>
+          </div>
+
+
+          <div class="row g-4">
+             <!-- Left: Booking Form -->
+             <div class="col-lg-8">
+
+
+                   <!-- Passenger Information -->
+                   <div class="card border-0 shadow-sm mb-4">
+                      <div class="card-header bg-white">
+                            <h5 class="fw-bold mb-0">
+                                <i class="bi bi-person-fill text-primary
+me-2"></i> Passenger Information
+                            </h5>
+                      </div>
+                      <div class="card-body p-4">
+                            <div id="bookingError" class="alert alert-danger
+d-none small py-2">
+                                <i class="bi bi-exclamation-triangle-fill
+me-2"></i>
+                                <span id="bookingErrorMsg"></span>
+                            </div>
+
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                     <label class="form-label fw-semibold
+small">
+                                         First Name <span
+class="text-danger">*</span>
+                                     </label>
+                                     <input type="text" class="form-control"
+id="firstName"
+                                            value="{{#if
+user}}{{user.firstName}}{{/if}}" required>
+                                     <div class="invalid-feedback"> First name
+is required. </div>
+                                </div>
+                               <div class="col-md-6">
+                                   <label class="form-label fw-semibold
+small">
+                                        Last Name <span
+class="text-danger">*</span>
+                                   </label>
+                                   <input type="text" class="form-control"
+id="lastName"
+                                          value="{{#if
+user}}{{user.lastName}}{{/if}}" required>
+                                   <div class="invalid-feedback"> Last name
+is required. </div>
+                               </div>
+                               <div class="col-md-6">
+                                   <label class="form-label fw-semibold
+small">
+                                        Email Address <span
+class="text-danger">*</span>
+                                   </label>
+                                   <input type="email" class="form-control"
+id="email"
+                                          value="{{#if
+user}}{{user.email}}{{/if}}" required>
+                                   <div class="invalid-feedback"> Valid email
+is required. </div>
+                               </div>
+                               <div class="col-md-6">
+                                   <label class="form-label fw-semibold
+small">
+                                        Passport Number <span
+class="text-danger">*</span>
+                                   </label>
+                                   <input type="text" class="form-control"
+id="passport"
+                                          placeholder="e.g. P1234567A"
+required>
+                                   <div class="invalid-feedback"> Passport
+number is required. </div>
+                               </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Seat Selection -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white d-flex
+justify-content-between align-items-center">
+                         <h5 class="fw-bold mb-0">
+                              <i class="bi bi-grid-3x3-gap-fill text-primary
+me-2"></i> Select Your Seat
+                         </h5>
+                         <span id="selectedSeatBadge" class="badge
+bg-primary d-none"></span>
+                    </div>
+                    <div class="card-body p-4">
+
+
+                         <!-- Legend -->
+                         <div class="d-flex flex-wrap gap-3 mb-3 small">
+                              <span><span class="d-inline-block rounded
+me-1" style="width:16px;height:16px;background:#d1fae5;border:1.5px solid
+#10b981;"></span> Available </span>
+                              <span><span class="d-inline-block rounded
+me-1" style="width:16px;height:16px;background:#fee2e2;border:1.5px solid
+#ef4444;"></span> Occupied </span>
+                              <span><span class="d-inline-block rounded
+me-1" style="width:16px;height:16px;background:#0d6efd;border:1.5px solid
+#0a58ca;"></span> Selected </span>
+                              <span><span class="d-inline-block rounded
+me-1" style="width:16px;height:16px;background:#fef3c7;border:1.5px solid
+#f59e0b;"></span> Premium (+₱30) </span>
+                         </div>
+
+
+                         <!-- Loading indicator -->
+                         <div id="seatMapLoading" class="text-center py-3">
+                              <div class="spinner-border text-primary
+spinner-border-sm me-2"></div>
+                              <span class="small text-muted"> Loading seat
+availability… </span>
+                         </div>
+                          <!-- Seat Map Container -->
+                          <div id="seatMapContainer" class="mx-auto d-none"
+style="max-width:440px;"></div>
+
+
+                          <div class="mt-2 small text-muted"
+id="selectedSeatLabel">
+                              No seat selected yet.
+                          </div>
+                     </div>
+                </div>
+
+
+                <!-- Meal + Extras -->
+                <div class="card border-0 shadow-sm mb-4">
+                     <div class="card-header bg-white">
+                          <h5 class="fw-bold mb-0">
+                              <i class="bi bi-bag-plus-fill text-primary
+me-2"></i> Add-ons
+                          </h5>
+                     </div>
+                     <div class="card-body p-4">
+
+
+                          <!-- Meal Selection -->
+                          <h6 class="fw-semibold mb-3"> Meal Package </h6>
+                          <div class="row g-2 mb-4" id="mealOptions">
+                              <!-- Rendered by JS -->
+                          </div>
+
+
+                          <!-- Extra Baggage -->
+                          <h6 class="fw-semibold mb-3"> Extra Checked
+Baggage </h6>
+                          <div class="card border mb-2">
+                              <div class="card-body py-2 d-flex
+justify-content-between align-items-center">
+                                   <div>
+                                       <div class="fw-semibold small"><i
+class="bi bi-luggage-fill me-2 text-primary"></i> Additional Baggage
+</div>
+                                       <div class="text-muted"
+style="font-size:0.8rem;"> ₱5 per kg </div>
+                                   </div>
+                                  <div class="d-flex align-items-center
+gap-2">
+                                        <button class="btn
+btn-outline-secondary btn-sm px-2" id="baggageMinus">−</button>
+                                        <span class="fw-bold"
+id="baggageQty">0</span>
+                                        <span class="text-muted
+small">kg</span>
+                                        <button class="btn
+btn-outline-secondary btn-sm px-2" id="baggagePlus">+</button>
+                                  </div>
+                               </div>
+                         </div>
+                     </div>
+                </div>
+
+
+                <!-- Confirm button -->
+                <button type="button" class="btn btn-primary btn-lg w-100
+fw-semibold py-3" id="confirmBookingBtn">
+                     <span id="confirmBtnText"><i class="bi bi-check-circle
+me-2"></i> Confirm Booking </span>
+                     <span id="confirmSpinner" class="d-none">
+                         <span class="spinner-border spinner-border-sm
+me-2"></span> Processing…
+                     </span>
+                </button>
+
+
+           </div>
+
+
+           <!-- Right: Price Summary -->
+           <div class="col-lg-4">
+                <div class="card border-0 shadow-sm sticky-top"
+style="top:80px;">
+                     <div class="card-header bg-primary text-white">
+                         <h6 class="fw-bold mb-0"><i class="bi bi-receipt
+me-2"></i> Price Summary </h6>
+                     </div>
+                     <div class="card-body p-3">
+                         <div class="d-flex justify-content-between small
+mb-1">
+                                  <span class="text-muted"> Base Fare </span>
+                                  <span
+id="summaryBase">₱{{flight.ticketPrice}}</span>
+                           </div>
+                           <div class="d-flex justify-content-between small
+mb-1" id="seatFeeRow" style="display:none!important;">
+                                  <span class="text-muted"> Premium Seat </span>
+                                  <span id="summarySeatFee"> ₱0 </span>
+                           </div>
+                           <div class="d-flex justify-content-between small
+mb-1">
+                                  <span class="text-muted"> Meal </span>
+                                  <span id="summaryMeal"> ₱0 </span>
+                           </div>
+                           <div class="d-flex justify-content-between small
+mb-1">
+                                  <span class="text-muted"> Baggage </span>
+                                  <span id="summaryBaggage"> ₱0 </span>
+                           </div>
+                           <div class="d-flex justify-content-between small
+mb-1">
+                                  <span class="text-muted"> Tax (12%) </span>
+                                  <span id="summaryTax">₱{{taxAmount}}</span>
+                           </div>
+                           <hr class="my-2">
+                           <div class="d-flex justify-content-between
+fw-bold">
+                                  <span> Total </span>
+                                  <span class="text-primary fs-5"
+id="summaryTotal">₱{{totalPrice}}</span>
+                           </div>
+                           <p class="text-muted mt-2 mb-0"
+style="font-size:0.72rem;">
+                                  * Prices inclusive of all taxes and fees.
+                           </p>
+                     </div>
+                  </div>
+            </div>
+
+
+         </div>
+    </div>
+</section>
+
+
+<!-- Booking Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1"
+data-bs-backdrop="static">
+    <div class="modal-dialog">
+           <div class="modal-content">
+              <div class="modal-body text-center py-5">
+                    <i class="bi bi-check-circle-fill text-success"
+style="font-size:4rem;"></i>
+                    <h4 class="mt-3 fw-bold"> Booking Confirmed! </h4>
+                    <p class="text-muted"> Your booking reference (PNR) is
+</p>
+                    <h4 class="text-primary fw-bold" id="pnrDisplay"></h4>
+                    <p class="text-muted small mt-2">
+                       A confirmation has been recorded. Save your PNR for
+future reference.
+                    </p>
+                    <div class="d-flex gap-2 justify-content-center mt-3">
+                       <a href="/reservations" class="btn btn-primary"> View
+My Reservations </a>
+                       <a href="/flights/search" class="btn
+btn-outline-secondary"> Search More Flights </a>
+                    </div>
+              </div>
+           </div>
+    </div>
+</div>
+
+
+<script>
+    const FLIGHT_ID          = '{{flight._id}}';
+    const BASE_FARE          = {{flight.ticketPrice}};
+    const TAX_RATE           = 0.12;
+
+
+    let selectedSeat         = null;
+    let selectedMeal         = { label: 'None', price: 0 };
+    let baggageKg            = 0;
+    let occupiedSeats        = [];
+    const MEAL_OPTIONS = [
+         { label: 'None',           price: 0     },
+         { label: 'Standard',       price: 10 },
+         { label: 'Vegetarian',     price: 12 },
+         { label: 'Vegan',          price: 12 },
+         { label: 'Halal',          price: 15 },
+         { label: 'Kosher',         price: 15 },
+         { label: 'Gluten-Free', price: 18 }
+    ];
+
+
+    const OCCUPIED_PRESET = [
+         '1A','1C','2B','2D','3A','4C','5B','6A','7D','8C',
+         '9B','10A','11C','12D','13A','14B','15C','16D'
+    ];
+
+
+    // ── Price update ──
+    function updatePricing() {
+         const isPremium     = selectedSeat && parseInt(selectedSeat) <= 4;
+         const seatFee       = isPremium ? 30 : 0;
+         const mealFee       = selectedMeal.price;
+         const baggageFee = baggageKg * 5;
+         const subtotal      = BASE_FARE + seatFee + mealFee + baggageFee;
+         const tax           = Math.round(subtotal * TAX_RATE * 100) / 100;
+         const total         = subtotal + tax;
+
+
+         document.getElementById('summarySeatFee').textContent    =
+`₱${seatFee}`;
+         document.getElementById('summaryMeal').textContent       =
+`₱${mealFee}`;
+         document.getElementById('summaryBaggage').textContent    =
+`₱${baggageFee}`;
+         document.getElementById('summaryTax').textContent        =
+`₱${tax.toFixed(2)}`;
+         document.getElementById('summaryTotal').textContent      =
+`₱${total.toFixed(2)}`;
+
+
+         if (isPremium) {
+
+
+document.getElementById('seatFeeRow').style.removeProperty('display');
+         } else {
+               document.getElementById('seatFeeRow').style.display = 'none';
+           }
+    }
+
+
+    // ── Render seat map ──
+    function renderSeatMap(occupied) {
+           occupiedSeats = occupied;
+           const cols     = ['A','B','C','D','E','F'];
+           const rows     = 20;
+           let html       = `
+               <div class="text-center mb-2 small fw-semibold text-muted">✈
+Front of Aircraft</div>
+               <div class="d-flex justify-content-center gap-1 mb-1 small
+text-muted">
+                   ${cols.slice(0,3).map(c=>`<span
+style="width:36px;text-align:center">${c}</span>`).join('')}
+                   <span style="width:16px"></span>
+                   ${cols.slice(3).map(c=>`<span
+style="width:36px;text-align:center">${c}</span>`).join('')}
+               </div>`;
+
+
+           for (let r = 1; r <= rows; r++) {
+               html += `<div class="d-flex justify-content-center gap-1
+mb-1">`;
+               cols.forEach((c, ci) => {
+                   const code          = r + c;
+                   const isOccupied = occupied.includes(code);
+                   const isSelected = selectedSeat === code;
+                   const isPremium     = r <= 4;
+                   const cls = isOccupied ? 'seat-occupied' : isSelected ?
+'seat-selected' : isPremium ? 'seat-premium' : 'seat-available';
+                   const title = `${code}${isPremium ? ' (Premium +₱30)' :
+''}`;
+                   html += `<div class="seat-map-cell ${cls}"
+data-code="${code}" title="${title}"
+
+
+style="width:36px;height:36px;border-radius:6px 6px 2px 2px;
+
+
+display:flex;align-items:center;justify-content:center;
+font-size:0.65rem;font-weight:600;cursor:${isOccupied?'not-allowed':'point er'};
+                                          border:2px solid
+${isOccupied?'#ef4444':isSelected?'#0a58ca':isPremium?'#f59e0b':'#10b981'}
+;
+
+
+background:${isOccupied?'#fee2e2':isSelected?'#0d6efd':isPremium?'#fef3c7'
+:'#d1fae5'};
+
+
+color:${isSelected?'#fff':isOccupied?'#991b1b':isPremium?'#92400e':'#065f4 6'}">
+                                ${code}
+                           </div>`;
+                  if (ci === 2) html += `<div style="width:16px;"></div>`;
+            });
+            html += `</div>`;
+        }
+
+
+        document.getElementById('seatMapContainer').innerHTML = html;
+        document.getElementById('seatMapLoading').classList.add('d-none');
+
+
+document.getElementById('seatMapContainer').classList.remove('d-none');
+
+
+        // Attach seat click handlers
+
+
+document.querySelectorAll('.seat-map-cell:not(.seat-occupied)').forEach(el => {
+            el.addEventListener('click', function () {
+                  selectedSeat = this.dataset.code;
+                  document.getElementById('selectedSeatLabel').textContent =
+                     `Selected: Seat
+${selectedSeat}${parseInt(selectedSeat) <= 4 ? ' (Premium +₱30)' : ''}`;
+                  document.getElementById('selectedSeatBadge').textContent =
+`Seat ${selectedSeat}`;
+
+
+document.getElementById('selectedSeatBadge').classList.remove('d-none');
+                  renderSeatMap(occupiedSeats); // re-render to update
+selection
+                  updatePricing();
+              });
+        });
+    }
+
+
+    // ── Load seat availability via AJAX ──
+    async function loadSeatAvailability() {
+        try {
+              const res      = await
+fetch(`/api/bookings/flight/${FLIGHT_ID}/seats`);
+              const data = await res.json();
+              const occupied = (data.occupriedSeats || data.occupiedSeats ||
+[]).concat(OCCUPIED_PRESET);
+              renderSeatMap(occupied);
+        } catch (_) {
+              renderSeatMap(OCCUPIED_PRESET);
+        }
+    }
+
+
+    // ── Render meal options ──
+    function renderMeals() {
+        document.getElementById('mealOptions').innerHTML =
+MEAL_OPTIONS.map(m => `
+              <div class="col-6 col-md-4">
+                    <div class="card border meal-card ${m.label ===
+selectedMeal.label ? 'border-primary' : ''}"
+                        style="cursor:pointer;" data-label="${m.label}"
+data-price="${m.price}">
+                       <div class="card-body py-2 text-center">
+                             <div class="fw-semibold small">${m.label}</div>
+                             <div class="text-muted"
+style="font-size:0.72rem;">
+                                 ${m.price === 0 ? 'Included' : '+₱' + m.price}
+                             </div>
+                       </div>
+                    </div>
+              </div>`).join('');
+
+
+        document.querySelectorAll('.meal-card').forEach(card => {
+              card.addEventListener('click', function () {
+                      selectedMeal = { label: this.dataset.label, price:
++this.dataset.price };
+                      renderMeals();
+                      updatePricing();
+                });
+          });
+    }
+
+
+    // ── Baggage ──
+    document.getElementById('baggagePlus').addEventListener('click', () =>
+{
+          baggageKg = Math.min(baggageKg + 5, 50);
+          document.getElementById('baggageQty').textContent = baggageKg;
+          updatePricing();
+    });
+    document.getElementById('baggageMinus').addEventListener('click', () => {
+          baggageKg = Math.max(baggageKg - 5, 0);
+          document.getElementById('baggageQty').textContent = baggageKg;
+          updatePricing();
+    });
+
+
+    // ── Confirm booking ──
+    document.getElementById('confirmBookingBtn').addEventListener('click',
+async function () {
+          const firstName =
+document.getElementById('firstName').value.trim();
+          const lastName     =
+document.getElementById('lastName').value.trim();
+          const email        = document.getElementById('email').value.trim();
+          const passport     =
+document.getElementById('passport').value.trim();
+          const errorDiv     = document.getElementById('bookingError');
+          const errorMsg     = document.getElementById('bookingErrorMsg');
+
+
+          errorDiv.classList.add('d-none');
+          ['firstName','lastName','email','passport'].forEach(id =>
+                document.getElementById(id)?.classList.remove('is-invalid'));
+
+
+          let valid = true;
+           if (!firstName) {
+document.getElementById('firstName').classList.add('is-invalid'); valid =
+false; }
+           if (!lastName)     {
+document.getElementById('lastName').classList.add('is-invalid');        valid =
+false; }
+           if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+               document.getElementById('email').classList.add('is-invalid');
+valid = false;
+           }
+           if (!passport) {
+document.getElementById('passport').classList.add('is-invalid'); valid =
+false; }
+           if (!selectedSeat) {
+               errorMsg.textContent = 'Please select a seat.';
+               errorDiv.classList.remove('d-none');
+               valid = false;
+           }
+           if (!valid) return;
+
+
+           document.getElementById('confirmBtnText').classList.add('d-none');
+
+
+document.getElementById('confirmSpinner').classList.remove('d-none');
+           this.disabled = true;
+
+
+           try {
+               const res     = await fetch('/api/reservations', {
+                     method: 'POST',
+                     headers: { 'Content-Type': 'application/json' },
+                     body: JSON.stringify({
+                          firstName, lastName, email,
+                          passport,
+                          seat:        selectedSeat,
+                          flightId:    FLIGHT_ID,
+                          mealOption: selectedMeal,
+                          baggage:     baggageKg
+                     })
+               });
+               const data = await res.json();
+                 if (data.success) {
+                     document.getElementById('pnrDisplay').textContent =
+data.reservation.pnr;
+                     new
+bootstrap.Modal(document.getElementById('successModal')).show();
+                 } else {
+                     errorMsg.textContent = data.message || 'Booking failed. Please try again.';
+                     errorDiv.classList.remove('d-none');
+                 }
+             } catch (_) {
+                 errorMsg.textContent = 'A network error occurred. Please try again.';
+                 errorDiv.classList.remove('d-none');
+             } finally {
+
+
+document.getElementById('confirmBtnText').classList.remove('d-none');
+
+
+document.getElementById('confirmSpinner').classList.add('d-none');
+                 this.disabled = false;
+             }
+       });
+
+
+       // ── Init ──
+       renderMeals();
+       updatePricing();
+       loadSeatAvailability();
+</script>
+
+

@@ -1,0 +1,179 @@
+<section class="bg-light min-vh-100 py-5 d-flex align-items-center">
+       <div class="container">
+             <div class="row justify-content-center">
+                 <div class="col-md-5 col-lg-4">
+
+
+                     <div class="text-center mb-4">
+                           <i class="bi bi-airplane-fill text-primary fs-1"></i>
+                           <h3 class="fw-bold mt-2"> Welcome Back </h3>
+                           <p class="text-muted small"> Sign in to your Polaris
+account </p>
+                </div>
+
+
+                <div class="card shadow-sm border-0">
+                      <div class="card-body p-4">
+
+
+                          <!-- Error alert -->
+                          <div id="loginError" class="alert alert-danger
+d-none small py-2" role="alert">
+                              <i class="bi bi-exclamation-triangle-fill
+me-2"></i>
+                              <span id="loginErrorMsg"></span>
+                          </div>
+
+
+                          <div class="mb-3">
+                              <label for="email" class="form-label
+fw-semibold small"> Email Address </label>
+                              <input type="email" class="form-control"
+id="email"
+                                       placeholder="you@email.com"
+autocomplete="email" required>
+                              <div class="invalid-feedback"> Please enter a
+valid email. </div>
+                          </div>
+
+
+                          <div class="mb-3">
+                              <label for="password" class="form-label
+fw-semibold small"> Password </label>
+                              <div class="input-group">
+                                   <input type="password"
+class="form-control" id="password"
+                                           placeholder="Your password"
+autocomplete="current-password" required>
+                                   <button class="btn btn-outline-secondary"
+type="button" id="togglePassword">
+                                        <i class="bi bi-eye"></i>
+                                   </button>
+                              </div>
+                              <div class="invalid-feedback"> Password is
+required. </div>
+                          </div>
+                              <button type="button" class="btn btn-primary w-100
+py-2 fw-semibold mt-1"
+                                      id="loginBtn">
+                                  <span id="loginBtnText"><i class="bi
+bi-box-arrow-in-right me-2"></i> Login </span>
+                                  <span id="loginSpinner" class="d-none">
+                                      <span class="spinner-border
+spinner-border-sm me-2"></span> Signing in…
+                                  </span>
+                              </button>
+
+
+                         </div>
+                     </div>
+
+
+                     <p class="text-center small mt-3 text-muted">
+                         Don't have an account?
+                         <a href="/register" class="text-primary fw-semibold
+text-decoration-none"> Register here </a>
+                     </p>
+
+
+              </div>
+           </div>
+    </div>
+</section>
+
+
+<script>
+    // Toggle password visibility
+    document.getElementById('togglePassword').addEventListener('click',
+function () {
+           const pw = document.getElementById('password');
+           pw.type   = pw.type === 'password' ? 'text' : 'password';
+           this.querySelector('i').classList.toggle('bi-eye');
+           this.querySelector('i').classList.toggle('bi-eye-slash');
+    });
+
+
+    document.getElementById('loginBtn').addEventListener('click', async function () {
+           const email        = document.getElementById('email').value.trim();
+           const password = document.getElementById('password').value.trim();
+        const errorDiv = document.getElementById('loginError');
+        const errorMsg = document.getElementById('loginErrorMsg');
+
+
+        // Clear previous errors
+        errorDiv.classList.add('d-none');
+        document.getElementById('email').classList.remove('is-invalid');
+
+
+document.getElementById('password').classList.remove('is-invalid');
+
+
+        // Client-side validation
+        let valid = true;
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            document.getElementById('email').classList.add('is-invalid');
+            valid = false;
+        }
+        if (!password) {
+
+
+document.getElementById('password').classList.add('is-invalid');
+            valid = false;
+        }
+        if (!valid) return;
+
+
+        // Show spinner
+        document.getElementById('loginBtnText').classList.add('d-none');
+
+
+document.getElementById('loginSpinner').classList.remove('d-none');
+        this.disabled = true;
+
+
+        try {
+            const response = await fetch('/api/auth/login', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email, password })
+            });
+            const data = await response.json();
+
+
+            if (data.success) {
+                  // Redirect based on role
+                  if (data.role === 'admin') {
+                     window.location.href = '/admin/flights';
+                         } else {
+                             window.location.href = '/flights/search';
+                         }
+                     } else {
+                         errorMsg.textContent = data.message || 'Login failed. Please try again.';
+                         errorDiv.classList.remove('d-none');
+                     }
+               } catch (err) {
+                     errorMsg.textContent = 'A network error occurred. Please try again.';
+                     errorDiv.classList.remove('d-none');
+               } finally {
+
+
+document.getElementById('loginBtnText').classList.remove('d-none');
+
+
+document.getElementById('loginSpinner').classList.add('d-none');
+                     this.disabled = false;
+               }
+       });
+
+
+       // Allow Enter key to submit
+       ['email','password'].forEach(id => {
+               document.getElementById(id).addEventListener('keypress', function
+(e) {
+                     if (e.key === 'Enter')
+document.getElementById('loginBtn').click();
+               });
+       });
+</script>
+
+

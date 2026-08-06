@@ -1,0 +1,239 @@
+<section class="bg-light min-vh-100 py-5 d-flex align-items-center">
+       <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-6 col-lg-5">
+
+
+                        <div class="text-center mb-4">
+                           <i class="bi bi-airplane-fill text-primary fs-1"></i>
+                           <h3 class="fw-bold mt-2"> Create Your Account </h3>
+                           <p class="text-muted small"> Join Polaris and start
+booking today </p>
+                        </div>
+
+
+                        <div class="card shadow-sm border-0">
+                           <div class="card-body p-4">
+
+
+                                 <div id="registerError" class="alert alert-danger
+d-none small py-2" role="alert">
+                                     <i class="bi bi-exclamation-triangle-fill
+me-2"></i>
+                                     <span id="registerErrorMsg"></span>
+                                 </div>
+
+
+                                 <div class="row g-3">
+                                     <div class="col-6">
+                                   <label for="firstName" class="form-label
+fw-semibold small">
+                                        First Name <span
+class="text-danger">*</span>
+                                   </label>
+                                   <input type="text" class="form-control"
+id="firstName"
+                                          placeholder="Juan" required>
+                                   <div class="invalid-feedback"> First name
+is required. </div>
+                               </div>
+                               <div class="col-6">
+                                   <label for="lastName" class="form-label
+fw-semibold small">
+                                        Last Name <span
+class="text-danger">*</span>
+                                   </label>
+                                   <input type="text" class="form-control"
+id="lastName"
+                                          placeholder="dela Cruz" required>
+                                   <div class="invalid-feedback"> Last name
+is required. </div>
+                               </div>
+                               <div class="col-12">
+                                   <label for="regEmail" class="form-label
+fw-semibold small">
+                                        Email Address <span
+class="text-danger">*</span>
+                                   </label>
+                                   <input type="email" class="form-control"
+id="regEmail"
+                                          placeholder="you@email.com"
+autocomplete="email" required>
+                                   <div class="invalid-feedback"> Please
+enter a valid email. </div>
+                               </div>
+                               <div class="col-12">
+                                   <label for="regPassword" class="form-label
+fw-semibold small">
+                                        Password <span
+class="text-danger">*</span>
+                                   </label>
+                                   <div class="input-group">
+                                        <input type="password"
+class="form-control" id="regPassword"
+                                                placeholder="Min. 8 characters"
+required>
+                                        <button class="btn
+btn-outline-secondary" type="button" id="toggleRegPw">
+                                              <i class="bi bi-eye"></i>
+                                        </button>
+                                   </div>
+                                   <div class="form-text text-muted"
+style="font-size:0.75rem;">
+                                        At least 8 characters.
+                                   </div>
+                                   <div class="invalid-feedback"> Password
+must be at least 8 characters. </div>
+                               </div>
+                               <div class="col-12">
+                                   <label for="confirmPassword"
+class="form-label fw-semibold small">
+                                        Confirm Password <span
+class="text-danger">*</span>
+                                   </label>
+                                   <input type="password"
+class="form-control" id="confirmPassword"
+                                            placeholder="Repeat your password"
+required>
+                                   <div class="invalid-feedback"> Passwords
+do not match. </div>
+                               </div>
+                         </div>
+
+
+                         <button type="button" class="btn btn-primary w-100
+py-2 fw-semibold mt-4"
+                                   id="registerBtn">
+                               <span id="registerBtnText">
+                                        <i class="bi bi-person-plus-fill
+me-2"></i> Create Account
+                                  </span>
+                                  <span id="registerSpinner" class="d-none">
+                                        <span class="spinner-border
+spinner-border-sm me-2"></span> Creating account…
+                                  </span>
+                              </button>
+
+
+                         </div>
+                     </div>
+
+
+                     <p class="text-center small mt-3 text-muted">
+                         Already have an account?
+                         <a href="/login" class="text-primary fw-semibold
+text-decoration-none"> Login here </a>
+                     </p>
+
+
+              </div>
+           </div>
+    </div>
+</section>
+
+
+<script>
+    document.getElementById('toggleRegPw').addEventListener('click',
+function () {
+           const pw = document.getElementById('regPassword');
+           pw.type   = pw.type === 'password' ? 'text' : 'password';
+           this.querySelector('i').classList.toggle('bi-eye');
+           this.querySelector('i').classList.toggle('bi-eye-slash');
+    });
+
+
+    document.getElementById('registerBtn').addEventListener('click', async function () {
+           const firstName          =
+document.getElementById('firstName').value.trim();
+           const lastName           =
+document.getElementById('lastName').value.trim();
+           const email              =
+document.getElementById('regEmail').value.trim();
+           const password        =
+document.getElementById('regPassword').value.trim();
+           const confirmPassword =
+document.getElementById('confirmPassword').value.trim();
+           const errorDiv        = document.getElementById('registerError');
+           const errorMsg        =
+document.getElementById('registerErrorMsg');
+
+
+           // Clear previous
+           errorDiv.classList.add('d-none');
+
+
+['firstName','lastName','regEmail','regPassword','confirmPassword']
+               .forEach(id =>
+document.getElementById(id).classList.remove('is-invalid'));
+
+
+           // Client-side validation
+           let valid = true;
+           if (!firstName) {
+document.getElementById('firstName').classList.add('is-invalid');
+valid = false; }
+           if (!lastName)   {
+document.getElementById('lastName').classList.add('is-invalid');
+valid = false; }
+           if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+
+
+document.getElementById('regEmail').classList.add('is-invalid'); valid =
+false;
+           }
+           if (!password || password.length < 8) {
+
+
+document.getElementById('regPassword').classList.add('is-invalid'); valid
+= false;
+           }
+           if (password !== confirmPassword) {
+
+
+document.getElementById('confirmPassword').classList.add('is-invalid');
+valid = false;
+           }
+           if (!valid) return;
+              // Show spinner
+
+
+document.getElementById('registerBtnText').classList.add('d-none');
+
+
+document.getElementById('registerSpinner').classList.remove('d-none');
+              this.disabled = true;
+
+
+              try {
+                    const response = await fetch('/api/auth/register', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ firstName, lastName, email,
+password, confirmPassword })
+                    });
+                    const data = await response.json();
+
+
+                    if (data.success) {
+                          // Redirect to login with success message
+                          window.location.href = '/login?registered=true';
+                    } else {
+                          errorMsg.textContent = data.message || 'Registration failed. Please try again.';
+                          errorDiv.classList.remove('d-none');
+                    }
+              } catch (err) {
+                    errorMsg.textContent = 'A network error occurred. Please try again.';
+                    errorDiv.classList.remove('d-none');
+              } finally {
+
+
+document.getElementById('registerBtnText').classList.remove('d-none');
+
+
+document.getElementById('registerSpinner').classList.add('d-none');
+                    this.disabled = false;
+              }
+       });
+</script>
+
+

@@ -1,0 +1,626 @@
+<section class="bg-light min-vh-100 py-4">
+    <div class="container">
+
+
+           <!-- Page Header -->
+           <div class="d-flex justify-content-between align-items-center mb-4
+flex-wrap gap-2">
+              <div>
+                    <h4 class="fw-bold mb-0"><i class="bi bi-calendar-check
+text-primary me-2"></i> My Reservations </h4>
+                    <p class="text-muted small mb-0"> Manage all your flight
+bookings </p>
+              </div>
+              <a href="/flights/search" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i> New Booking
+              </a>
+           </div>
+
+
+           <!-- Stats row -->
+           <div class="row g-3 mb-4" id="resStatsRow">
+              <!-- Populated by JS -->
+           </div>
+
+
+           <!-- Search / filter bar -->
+           <div class="card border-0 shadow-sm mb-4">
+              <div class="card-body p-3">
+                    <div class="row g-2 align-items-center">
+                       <div class="col-md-5">
+                           <div class="input-group">
+                                <span class="input-group-text"><i class="bi
+bi-search"></i></span>
+                                <input type="text" class="form-control"
+id="resSearch"
+                                       placeholder="Search by PNR, flight, or
+route…">
+                           </div>
+                       </div>
+                       <div class="col-md-3">
+                           <select class="form-select" id="resStatusFilter">
+                                <option value=""> All Statuses </option>
+                                <option value="Pending">   Pending   </option>
+                                <option value="Confirmed"> Confirmed </option>
+                                <option value="Cancelled"> Cancelled </option>
+                                <option value="Completed"> Completed </option>
+                           </select>
+                       </div>
+                       <div class="col-md-2">
+                           <select class="form-select" id="resSort">
+                                <option value="newest"> Newest First </option>
+                                <option value="oldest"> Oldest First </option>
+                           </select>
+                       </div>
+                       <div class="col-md-2 text-end">
+                           <button class="btn btn-outline-secondary w-100"
+id="clearResFilters">
+                                <i class="bi bi-x-circle me-1"></i> Clear
+                           </button>
+                       </div>
+                  </div>
+              </div>
+        </div>
+
+
+        <!-- Loading indicator -->
+        <div id="resLoading" class="text-center py-5">
+              <div class="spinner-border text-primary mb-3"></div>
+              <p class="text-muted small"> Loading your reservations… </p>
+        </div>
+
+
+        <!-- Reservation cards grid -->
+        <div class="row g-3" id="resCardsRow"></div>
+
+
+        <!-- No results -->
+        <div id="resNoResults" class="text-center py-5 d-none">
+              <i class="bi bi-inbox text-muted" style="font-size:3rem;"></i>
+              <h5 class="mt-3 text-muted"> No reservations found </h5>
+              <p class="text-muted small"> Try adjusting your search or
+filters. </p>
+              <a href="/flights/search" class="btn btn-primary"> Book a
+Flight </a>
+        </div>
+
+
+    </div>
+</section>
+
+
+<!-- View Details Modal -->
+<div class="modal fade" id="viewResModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+         <div class="modal-content">
+             <div class="modal-header">
+                  <h5 class="modal-title"><i class="bi bi-receipt me-2
+text-primary"></i> Booking Details </h5>
+                  <button type="button" class="btn-close"
+data-bs-dismiss="modal"></button>
+             </div>
+             <div class="modal-body" id="viewResBody"></div>
+             <div class="modal-footer">
+                  <button class="btn btn-secondary" data-bs-dismiss="modal">
+Close </button>
+             </div>
+         </div>
+    </div>
+</div>
+
+
+<!-- Edit Seat Modal -->
+<div class="modal fade" id="editSeatModal" tabindex="-1">
+    <div class="modal-dialog">
+         <div class="modal-content">
+             <div class="modal-header bg-warning">
+                  <h5 class="modal-title"><i class="bi bi-pencil-fill
+me-2"></i> Update Seat </h5>
+                  <button type="button" class="btn-close"
+data-bs-dismiss="modal"></button>
+             </div>
+             <div class="modal-body p-4">
+                  <input type="hidden" id="editResId">
+                  <div class="mb-3">
+                      <label class="form-label fw-semibold small"> New Seat
+Number </label>
+                      <input type="text" class="form-control"
+id="newSeatInput"
+                            placeholder="e.g. 12A" maxlength="4">
+                      <div class="form-text text-muted small">
+                           Format: row number + letter (e.g. 5C). Rows 1–4
+are premium (+₱30).
+                      </div>
+                      <div id="editSeatError"
+class="invalid-feedback"></div>
+                  </div>
+             </div>
+             <div class="modal-footer">
+                  <button class="btn btn-secondary" data-bs-dismiss="modal">
+Cancel </button>
+                  <button class="btn btn-warning fw-semibold"
+id="saveEditSeatBtn">
+                      <i class="bi bi-save me-1"></i> Update Seat
+                  </button>
+             </div>
+         </div>
+    </div>
+</div>
+
+
+<!-- Cancel Confirmation Modal -->
+<div class="modal fade" id="cancelResModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+         <div class="modal-content">
+             <div class="modal-header bg-danger text-white">
+                  <h5 class="modal-title"><i class="bi bi-x-circle-fill
+me-2"></i> Cancel Booking </h5>
+                  <button type="button" class="btn-close btn-close-white"
+data-bs-dismiss="modal"></button>
+             </div>
+             <div class="modal-body text-center py-4">
+                  <i class="bi bi-exclamation-triangle-fill text-danger"
+style="font-size:2.5rem;"></i>
+                  <p class="mt-3 mb-1"> Cancel booking </p>
+                  <strong class="text-primary" id="cancelPNR"></strong>?
+                  <p class="text-muted small mt-2"> This action cannot be
+undone. </p>
+             </div>
+             <div class="modal-footer justify-content-center gap-2">
+                  <button class="btn btn-secondary" data-bs-dismiss="modal">
+Keep Booking </button>
+                    <button class="btn btn-danger fw-semibold"
+id="confirmCancelBtn">
+                       <span id="cancelBtnText"><i class="bi bi-x-circle
+me-1"></i> Cancel Booking </span>
+                       <span id="cancelSpinner" class="d-none">
+                           <span class="spinner-border spinner-border-sm
+me-1"></span> Cancelling…
+                       </span>
+                    </button>
+              </div>
+           </div>
+    </div>
+</div>
+
+
+<script>
+    let allReservations = [];
+    let resToCancel        = null;
+
+
+    // ── Status badge ──
+    function statusBadge(s) {
+           const map = { Confirmed:'success', Pending:'warning',
+Cancelled:'danger', Completed:'info', 'Checked-In':'primary' };
+           return `<span class="badge bg-${map[s] ||
+'secondary'}">${s}</span>`;
+    }
+
+
+    // ── Format date ──
+    function fmtDate(d) {
+           return d ? new Date(d).toLocaleDateString('en-PH', {
+month:'short', day:'numeric', year:'numeric' }) : 'N/A';
+    }
+    function fmtDateTime(d) {
+           return d ? new Date(d).toLocaleString('en-PH', { month:'short',
+day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' }) :
+'N/A';
+    }
+
+
+    // ── Stats ──
+    function renderStats(list) {
+        const confirmed = list.filter(r => r.bookingStatus ===
+'Confirmed').length;
+        const pending      = list.filter(r => r.bookingStatus ===
+'Pending').length;
+        const cancelled = list.filter(r => r.bookingStatus ===
+'Cancelled').length;
+        const stats = [
+             { label:'Total Bookings', value: list.length,
+color:'primary', icon:'bi-journal-text'           },
+             { label:'Confirmed',       value: confirmed,
+color:'success', icon:'bi-check-circle-fill' },
+             { label:'Pending',          value: pending,
+color:'warning', icon:'bi-clock-fill'             },
+             { label:'Cancelled',       value: cancelled,     color:'danger',
+icon:'bi-x-circle-fill'         }
+        ];
+        document.getElementById('resStatsRow').innerHTML = stats.map(s =>
+`
+             <div class="col-6 col-md-3">
+                 <div class="card border-0 shadow-sm p-3 text-center">
+                       <div class="bg-${s.color} bg-opacity-10 rounded p-2
+d-inline-block mb-2 mx-auto">
+                           <i class="bi ${s.icon} fs-5 text-${s.color}"></i>
+                       </div>
+                       <div class="fw-bold fs-5
+text-${s.color}">${s.value}</div>
+                       <div class="text-muted small">${s.label}</div>
+                 </div>
+             </div>`).join('');
+    }
+
+
+    // ── Render cards ──
+    function renderCards(list) {
+        document.getElementById('resLoading').classList.add('d-none');
+
+
+        if (!list.length) {
+             document.getElementById('resCardsRow').innerHTML = '';
+
+
+document.getElementById('resNoResults').classList.remove('d-none');
+             return;
+        }
+        document.getElementById('resNoResults').classList.add('d-none');
+
+
+        const flight = r => r.flight || r.flightId || {};
+        document.getElementById('resCardsRow').innerHTML = list.map(r => {
+              const f         = flight(r);
+              const isCancellable = r.bookingStatus !== 'Cancelled' &&
+r.bookingStatus !== 'Completed' && r.bookingStatus !== 'Checked-In';
+              return `
+              <div class="col-md-6 col-lg-4">
+                  <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between
+align-items-start mb-3">
+                                <span class="badge bg-primary-subtle
+text-primary border fw-semibold">${r.pnr || r.reservationNumber ||
+'—'}</span>
+                                ${statusBadge(r.bookingStatus)}
+                            </div>
+                            <div class="fw-semibold mb-1">${r.passengerName ||
+(r.firstName + ' ' + r.lastName)}</div>
+                            <div class="text-muted small mb-2">
+                                <i class="bi bi-airplane me-1"></i>${f.origin
+|| '—'} → ${f.destination || '—'}
+                            </div>
+                            <div class="row g-1 small text-muted mb-3">
+                                <div class="col-6"><i class="bi bi-calendar3
+me-1"></i>${fmtDate(f.departureDateTime)}</div>
+                                <div class="col-6"><i class="bi
+bi-grid-3x3-gap me-1"></i>Seat ${r.seat?.code || '—'}</div>
+                                <div class="col-6"><i class="bi bi-tag
+me-1"></i>${f.flightNumber || '—'}</div>
+                                <div class="col-6"><i class="bi bi-egg-fried
+me-1"></i>${r.meal?.label || 'None'}</div>
+                            </div>
+                            <div class="d-flex justify-content-between
+align-items-center border-top pt-2">
+                                <span class="fw-bold
+text-primary">₱${(r.bill?.total || 0).toLocaleString()}</span>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm
+btn-outline-primary" onclick="openViewRes('${r._id}')">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </button>
+                                    <button class="btn btn-sm
+btn-outline-warning" onclick="openEditSeat('${r._id}')"
+                                            ${!isCancellable ? 'disabled' :
+''}>
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </button>
+                                    <button class="btn btn-sm
+btn-outline-danger" onclick="promptCancel('${r._id}','${r.pnr ||
+r.reservationNumber}')"
+                                            ${!isCancellable ? 'disabled' :
+''}>
+                                        <i class="bi bi-x-circle-fill"></i>
+                                    </button>
+                               </div>
+                           </div>
+                     </div>
+                  </div>
+            </div>`;
+        }).join('');
+    }
+
+
+    // ── Filter + sort ──
+    function applyFilters() {
+        const q        =
+document.getElementById('resSearch').value.toLowerCase();
+        const status = document.getElementById('resStatusFilter').value;
+        const sort     = document.getElementById('resSort').value;
+        const flight = r => r.flight || r.flightId || {};
+
+
+        let list = allReservations.filter(r => {
+            const f = flight(r);
+            if (q && !(r.pnr || '').toLowerCase().includes(q) &&
+                       !(r.reservationNumber ||
+'').toLowerCase().includes(q) &&
+                       !(f.flightNumber || '').toLowerCase().includes(q) &&
+                        !((f.origin || '') + ' ' + (f.destination ||
+'')).toLowerCase().includes(q)) return false;
+                if (status && r.bookingStatus !== status) return false;
+                return true;
+          });
+
+
+          list = list.sort((a, b) => {
+                const dA = new Date(a.createdAt), dB = new Date(b.createdAt);
+                return sort === 'oldest' ? dA - dB : dB - dA;
+          });
+
+
+          renderCards(list);
+    }
+
+
+    // ── View details modal ──
+    function openViewRes(id) {
+          const r = allReservations.find(x => x._id === id);
+          if (!r) return;
+          const f     = r.flight || r.flightId || {};
+          const tax = r.bill?.taxes || 0;
+          document.getElementById('viewResBody').innerHTML = `
+                <div class="row g-3">
+                    <div class="col-md-6">
+                       <div class="card border-0 bg-light p-3 rounded-3
+h-100">
+                            <div class="d-flex justify-content-between
+align-items-start mb-3">
+                                <div>
+                                     <div class="text-muted small"> Booking
+Reference (PNR) </div>
+                                     <div class="fw-bold fs-5
+text-primary">${r.pnr || r.reservationNumber || '—'}</div>
+                                </div>
+                                ${statusBadge(r.bookingStatus)}
+                            </div>
+                            <table class="table table-sm mb-0">
+                                <tr><td class="text-muted small border-0
+ps-0">Passenger</td><td class="fw-semibold small
+border-0">${r.passengerName || ((r.firstName||'') + ' ' +
+(r.lastName||''))}</td></tr>
+                              <tr><td class="text-muted small
+ps-0">Passport</td><td class="fw-semibold small">${r.passportNumber ||
+r.passport || '—'}</td></tr>
+                              <tr><td class="text-muted small
+ps-0">Email</td><td class="fw-semibold small">${r.email || '—'}</td></tr>
+                              <tr><td class="text-muted small
+ps-0">Seat</td><td class="fw-semibold small">${r.seat?.code ||
+'—'}${r.seat?.isPremium ? ' <span class="badge bg-warning text-dark small">Premium</span>' : ''}</td></tr>
+                              <tr><td class="text-muted small ps-0">Travel
+Class</td><td class="fw-semibold small">${r.travelClass ||
+'Economy'}</td></tr>
+                              <tr><td class="text-muted small
+ps-0">Meal</td><td class="fw-semibold small">${r.meal?.label ||
+'None'}</td></tr>
+                              <tr><td class="text-muted small
+ps-0">Baggage</td><td class="fw-semibold
+small">${r.baggage?.checkedBaggageKg || 0}kg checked</td></tr>
+                          </table>
+                    </div>
+                 </div>
+                 <div class="col-md-6">
+                    <div class="card border-0 bg-light p-3 rounded-3">
+                          <div class="fw-semibold mb-2"> Flight Details
+</div>
+                          <table class="table table-sm mb-3">
+                              <tr><td class="text-muted small border-0
+ps-0">Flight No.</td><td class="fw-semibold small
+border-0">${f.flightNumber || '—'}</td></tr>
+                              <tr><td class="text-muted small
+ps-0">Airline</td><td class="fw-semibold small">${f.airline ||
+'—'}</td></tr>
+                              <tr><td class="text-muted small
+ps-0">Route</td><td class="fw-semibold small">${f.origin || '—'} →
+${f.destination || '—'}</td></tr>
+                              <tr><td class="text-muted small
+ps-0">Departure</td><td class="fw-semibold
+small">${fmtDateTime(f.departureDateTime)}</td></tr>
+                               <tr><td class="text-muted small
+ps-0">Arrival</td><td class="fw-semibold
+small">${fmtDateTime(f.arrivalDateTime)}</td></tr>
+                           </table>
+                           <div class="fw-semibold mb-2"> Price Breakdown
+</div>
+                           <div class="d-flex justify-content-between small
+mb-1"><span class="text-muted">Base Fare</span><span>₱${(r.bill?.baseFare
+|| 0).toLocaleString()}</span></div>
+                           <div class="d-flex justify-content-between small
+mb-1"><span class="text-muted">Seat Fee</span><span>₱${(r.bill?.seatFee ||
+0).toLocaleString()}</span></div>
+                           <div class="d-flex justify-content-between small
+mb-1"><span class="text-muted">Meal Fee</span><span>₱${(r.bill?.mealFee ||
+0).toLocaleString()}</span></div>
+                           <div class="d-flex justify-content-between small
+mb-1"><span class="text-muted">Baggage
+Fee</span><span>₱${(r.bill?.baggageFee ||
+0).toLocaleString()}</span></div>
+                           <div class="d-flex justify-content-between small
+mb-1"><span class="text-muted">Tax</span><span>₱${(r.bill?.taxes ||
+0).toLocaleString()}</span></div>
+                           <div class="d-flex justify-content-between fw-bold
+border-top pt-2 mt-1">
+                               <span>Total</span><span
+class="text-primary">₱${(r.bill?.total || 0).toLocaleString()}</span>
+                           </div>
+                      </div>
+                  </div>
+               </div>`;
+         new
+bootstrap.Modal(document.getElementById('viewResModal')).show();
+    }
+
+
+    // ── Edit seat modal ──
+    function openEditSeat(id) {
+         document.getElementById('editResId').value = id;
+         document.getElementById('newSeatInput').value = '';
+
+
+document.getElementById('newSeatInput').classList.remove('is-invalid');
+          new
+bootstrap.Modal(document.getElementById('editSeatModal')).show();
+      }
+
+
+      document.getElementById('saveEditSeatBtn').addEventListener('click',
+async function () {
+          const id        = document.getElementById('editResId').value;
+          const seat =
+document.getElementById('newSeatInput').value.trim().toUpperCase();
+          const err       = document.getElementById('editSeatError');
+
+
+          if (!seat || !/^\d{1,2}[A-F]$/.test(seat)) {
+
+
+document.getElementById('newSeatInput').classList.add('is-invalid');
+                err.textContent = 'Invalid seat format (e.g. 12A, 5C).';
+                return;
+          }
+
+
+document.getElementById('newSeatInput').classList.remove('is-invalid');
+
+
+          this.disabled = true;
+          try {
+                const res     = await fetch(`/api/reservations/${id}/seat`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ seat })
+                });
+                const data = await res.json();
+                if (data.success) {
+
+
+bootstrap.Modal.getInstance(document.getElementById('editSeatModal')).hide
+();
+                      showToast('Seat updated successfully!', 'success');
+                      loadReservations();
+                } else {
+
+
+document.getElementById('newSeatInput').classList.add('is-invalid');
+                      err.textContent = data.message || 'Could not update seat.';
+                }
+             } catch (_) {
+                   err.textContent = 'Network error. Please try again.';
+
+
+document.getElementById('newSeatInput').classList.add('is-invalid');
+             } finally {
+                   this.disabled = false;
+             }
+       });
+
+
+       // ── Cancel reservation (AJAX — no page refresh) ──
+       function promptCancel(id, pnr) {
+             resToCancel = id;
+             document.getElementById('cancelPNR').textContent = pnr;
+             new
+bootstrap.Modal(document.getElementById('cancelResModal')).show();
+       }
+
+
+       document.getElementById('confirmCancelBtn').addEventListener('click',
+async function () {
+             if (!resToCancel) return;
+             document.getElementById('cancelBtnText').classList.add('d-none');
+
+
+document.getElementById('cancelSpinner').classList.remove('d-none');
+             this.disabled = true;
+
+
+             try {
+                   const res    = await
+fetch(`/api/reservations/${resToCancel}/cancel`, {
+                         method: 'PATCH',
+                         headers: { 'Content-Type': 'application/json' }
+                   });
+                   const data = await res.json();
+
+
+                   if (data.success) {
+
+
+bootstrap.Modal.getInstance(document.getElementById('cancelResModal')).hid
+e();
+                         showToast('Reservation cancelled.', 'warning');
+                         // Update in-memory without full reload
+                  const idx = allReservations.findIndex(r => r._id ===
+resToCancel);
+                  if (idx !== -1) allReservations[idx].bookingStatus =
+'Cancelled';
+                  renderStats(allReservations);
+                  applyFilters();
+              } else {
+                  showToast(data.message || 'Could not cancel booking.',
+'danger');
+              }
+          } catch (_) {
+              showToast('Network error. Please try again.', 'danger');
+          } finally {
+
+
+document.getElementById('cancelBtnText').classList.remove('d-none');
+
+
+document.getElementById('cancelSpinner').classList.add('d-none');
+              this.disabled = false;
+              resToCancel     = null;
+          }
+    });
+
+
+    // ── Load reservations via AJAX ──
+    async function loadReservations() {
+          try {
+              const res     = await fetch('/api/reservations');
+              if (!res.ok) {
+                  let data = null;
+                  try { data = await res.json(); } catch (_e) {
+                        data = null;
+                  }
+                  const message = data?.message || 'Could not load reservations. Please log in or try again later.';
+                  document.getElementById('resLoading').innerHTML =
+                        `<div class="alert alert-warning"><i class="bi
+bi-exclamation-triangle-fill me-2"></i>${message}</div>`;
+                  return;
+              }
+              const data = await res.json();
+                  allReservations = Array.isArray(data.reservations) ?
+data.reservations : [];
+                  renderStats(allReservations);
+                  applyFilters();
+              } catch (error) {
+                  console.error('Failed to load reservations:', error);
+                  document.getElementById('resLoading').innerHTML =
+                      '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Could not load reservations due to a network error.</div>';
+              }
+      }
+
+
+      // ── Event listeners ──
+      document.getElementById('resSearch').addEventListener('input',
+applyFilters);
+      document.getElementById('resStatusFilter').addEventListener('change',
+applyFilters);
+      document.getElementById('resSort').addEventListener('change',
+applyFilters);
+      document.getElementById('clearResFilters').addEventListener('click',
+function () {
+              document.getElementById('resSearch').value = '';
+              document.getElementById('resStatusFilter').value = '';
+              applyFilters();
+      });
+
+
+      // ── Init ──
+      loadReservations();
+</script>
+
+

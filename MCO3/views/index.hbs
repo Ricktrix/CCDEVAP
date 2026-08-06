@@ -1,0 +1,162 @@
+<!-- Hero -->
+<section class="bg-primary text-white py-5">
+      <div class="container py-3">
+             <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <p class="text-info fw-semibold small text-uppercase
+mb-1"> Book with confidence </p>
+                    <h1 class="display-5 fw-bold mb-3"> Your Journey Starts
+Here </h1>
+                    <p class="lead opacity-75 mb-4">
+                         Search hundreds of routes, compare fares, and book in
+minutes.
+                    </p>
+                    <div class="d-flex gap-3 flex-wrap">
+                         <a href="/flights/search" class="btn btn-light btn-lg
+fw-semibold px-4">
+                             <i class="bi bi-search me-2"></i> Search Flights
+                         </a>
+                         {{#if user}}
+                         <a href="/reservations" class="btn btn-outline-light
+btn-lg px-4"> My Trips </a>
+                         {{else}}
+                         <a href="/register" class="btn btn-outline-light
+btn-lg px-4"> Get Started </a>
+                         {{/if}}
+                    </div>
+                </div>
+
+
+                <!-- Quick Search Card -->
+                <div class="col-lg-6">
+                    <div class="card shadow-lg border-0">
+                         <div class="card-body p-4">
+                             <h5 class="card-title fw-bold mb-3">
+                                   <i class="bi bi-search text-primary me-2"></i>
+Quick Search
+                            </h5>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                     <label class="form-label fw-semibold
+small"> From </label>
+                                     <input type="text" class="form-control"
+id="quickOrigin" placeholder="e.g. Manila">
+                                </div>
+                                <div class="col-6">
+                                     <label class="form-label fw-semibold
+small"> To </label>
+                                     <input type="text" class="form-control"
+id="quickDestination" placeholder="e.g. Cebu">
+                                </div>
+                                <div class="col-12">
+                                     <label class="form-label fw-semibold
+small"> Departure Date </label>
+                                     <input type="date" class="form-control"
+id="quickDate">
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary w-100
+mt-3 py-2 fw-semibold"
+                                     id="quickSearchBtn">
+                                <i class="bi bi-search me-2"></i> Search
+Flights
+                            </button>
+                      </div>
+                   </div>
+             </div>
+          </div>
+    </div>
+</section>
+
+
+<!-- Stats -->
+<section class="py-4 bg-white border-bottom">
+    <div class="container">
+          <div class="row g-3 text-center">
+             <div class="col-6 col-md-3">
+                   <div class="p-3">
+                      <div class="fw-bold fs-3 text-primary">100+</div>
+                      <div class="text-muted small"> Routes Available </div>
+                 </div>
+             </div>
+             <div class="col-6 col-md-3">
+                 <div class="p-3">
+                      <div class="fw-bold fs-3 text-success">24/7</div>
+                      <div class="text-muted small"> Customer Support </div>
+                 </div>
+             </div>
+             <div class="col-6 col-md-3">
+                 <div class="p-3">
+                      <div class="fw-bold fs-3 text-warning">5★</div>
+                      <div class="text-muted small"> Safety Rating </div>
+                 </div>
+             </div>
+             <div class="col-6 col-md-3">
+                 <div class="p-3">
+                      <div class="fw-bold fs-3 text-info">125K+</div>
+                      <div class="text-muted small"> Happy Passengers </div>
+                 </div>
+             </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Why Polaris -->
+<section class="py-5">
+    <div class="container">
+        <h4 class="text-center fw-bold mb-4"> Why Fly Polaris? </h4>
+        <div class="row g-4 text-center">
+             <div class="col-6 col-md-3">
+                 <i class="bi bi-shield-fill-check fs-2 text-primary mb-2
+d-block"></i>
+                 <h6 class="fw-bold"> Safe &amp; Reliable </h6>
+                 <p class="small text-muted"> 5-star safety rating for 10
+consecutive years. </p>
+             </div>
+             <div class="col-6 col-md-3">
+                    <i class="bi bi-currency-exchange fs-2 text-success mb-2
+d-block"></i>
+                    <h6 class="fw-bold"> Best Price Guarantee </h6>
+                    <p class="small text-muted"> We'll match any lower fare
+you find. </p>
+              </div>
+              <div class="col-6 col-md-3">
+                    <i class="bi bi-headset fs-2 text-warning mb-2
+d-block"></i>
+                    <h6 class="fw-bold"> 24/7 Support </h6>
+                    <p class="small text-muted"> Always available via chat,
+phone, or email. </p>
+              </div>
+              <div class="col-6 col-md-3">
+                    <i class="bi bi-arrow-repeat fs-2 text-danger mb-2
+d-block"></i>
+                    <h6 class="fw-bold"> Flexible Booking </h6>
+                    <p class="small text-muted"> Free changes up to 24 hours
+before departure. </p>
+              </div>
+           </div>
+    </div>
+</section>
+
+
+<script>
+    document.getElementById('quickSearchBtn').addEventListener('click',
+function () {
+           const origin       =
+document.getElementById('quickOrigin').value.trim();
+           const destination =
+document.getElementById('quickDestination').value.trim();
+           const date         = document.getElementById('quickDate').value;
+           const params       = new URLSearchParams();
+           if (origin)       params.set('origin', origin);
+           if (destination) params.set('destination', destination);
+           if (date)         params.set('departureDate', date);
+           window.location.href = '/flights/search?' + params.toString();
+    });
+
+
+    // Set today as min date
+    document.getElementById('quickDate').min = new
+Date().toISOString().split('T')[0];
+</script>

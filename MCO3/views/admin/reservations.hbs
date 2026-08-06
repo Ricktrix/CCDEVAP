@@ -1,0 +1,826 @@
+<section class="bg-light min-vh-100 py-4">
+       <div class="container-fluid px-4">
+         <!-- Page Header -->
+         <div class="d-flex justify-content-between align-items-center mb-4
+flex-wrap gap-2">
+            <div>
+                  <h4 class="fw-bold mb-0">
+                     <i class="bi bi-clipboard-data text-primary me-2"></i>
+All Reservations
+                  </h4>
+                  <p class="text-muted small mb-0"> View and manage every
+passenger booking </p>
+            </div>
+            <button class="btn btn-outline-success" id="exportBtn">
+                  <i class="bi bi-download me-1"></i> Export CSV
+            </button>
+         </div>
+
+
+         <!-- Stats row -->
+         <div class="row g-3 mb-4" id="adminResStatsRow"></div>
+
+
+         <!-- Revenue summary -->
+         <div class="card border-0 shadow-sm mb-4 bg-primary text-white">
+            <div class="card-body d-flex justify-content-between
+align-items-center flex-wrap gap-3">
+                  <div>
+                     <div class="small opacity-75"> Total Revenue
+(Confirmed) </div>
+                     <div class="fw-bold fs-3" id="totalRevenue"> ₱0 </div>
+                  </div>
+                  <div>
+                     <div class="small opacity-75"> Average Booking Value
+</div>
+                     <div class="fw-bold fs-4" id="avgBooking"> ₱0 </div>
+                  </div>
+                  <div>
+                     <div class="small opacity-75"> Total Bookings </div>
+                     <div class="fw-bold fs-4" id="totalBookings"> 0 </div>
+                  </div>
+                  <i class="bi bi-graph-up-arrow"
+style="font-size:3rem;opacity:0.3;"></i>
+              </div>
+           </div>
+
+
+           <!-- Filter bar -->
+           <div class="card border-0 shadow-sm mb-3">
+              <div class="card-body p-3">
+                    <div class="row g-2 align-items-center">
+                       <div class="col-md-3">
+                           <div class="input-group">
+                                 <span class="input-group-text"><i class="bi
+bi-search"></i></span>
+                                 <input type="text" class="form-control"
+id="adminResSearch"
+                                        placeholder="Search PNR, passenger,
+route…">
+                           </div>
+                       </div>
+                       <div class="col-md-2">
+                           <select class="form-select"
+id="adminResStatusFilter">
+                                 <option value=""> All Statuses </option>
+                                 <option value="Pending">     Pending
+</option>
+                                 <option value="Confirmed">   Confirmed
+</option>
+                                 <option value="Checked-In"> Checked-In
+</option>
+                                 <option value="Completed">   Completed
+</option>
+                                 <option value="Cancelled">   Cancelled
+</option>
+                           </select>
+                       </div>
+                       <div class="col-md-2">
+                           <select class="form-select" id="adminResSort">
+                                 <option value="newest"> Newest First </option>
+                                 <option value="oldest"> Oldest First </option>
+                                 <option value="price-desc"> Price: High–Low
+</option>
+                                <option value="price-asc">     Price: Low–High
+</option>
+                          </select>
+                     </div>
+                     <div class="col-md-2 text-end">
+                          <button class="btn btn-outline-secondary w-100"
+id="clearAdminResFilters">
+                                <i class="bi bi-x-circle me-1"></i> Clear
+                          </button>
+                     </div>
+                 </div>
+            </div>
+        </div>
+
+
+        <!-- Table -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                 <div class="table-responsive">
+                     <table class="table table-hover align-middle mb-0">
+                          <thead class="table-light">
+                                <tr>
+                                       <th class="ps-3"> PNR </th>
+                                       <th> Passenger </th>
+                                       <th> Route </th>
+                                       <th> Flight </th>
+                                       <th> Date </th>
+                                       <th> Seat </th>
+                                       <th> Status </th>
+                                       <th> Total </th>
+                                       <th class="text-end pe-3"> Actions </th>
+                                </tr>
+                          </thead>
+                          <tbody id="adminResTableBody">
+                                <tr><td colspan="9" class="text-center py-4">
+                                       <div class="spinner-border text-primary
+spinner-border-sm me-2"></div>
+                                       Loading reservations…
+                                </td></tr>
+                          </tbody>
+                     </table>
+                  </div>
+                  <div class="d-flex justify-content-between
+align-items-center px-3 py-3 border-top flex-wrap gap-2">
+                      <div class="text-muted small"
+id="adminResPaginationInfo"></div>
+                      <nav><ul class="pagination pagination-sm mb-0"
+id="adminResPagination"></ul></nav>
+                  </div>
+             </div>
+         </div>
+
+
+    </div>
+</section>
+
+
+<!-- View Reservation Modal -->
+<div class="modal fade" id="viewAdminResModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+         <div class="modal-content">
+             <div class="modal-header">
+                  <h5 class="modal-title">
+                      <i class="bi bi-receipt me-2 text-primary"></i>
+Booking Details
+                  </h5>
+                  <button type="button" class="btn-close"
+data-bs-dismiss="modal"></button>
+             </div>
+             <div class="modal-body" id="viewAdminResBody"></div>
+             <div class="modal-footer">
+                  <button class="btn btn-secondary" data-bs-dismiss="modal">
+Close </button>
+             </div>
+         </div>
+    </div>
+</div>
+
+
+<!-- Update Status Modal -->
+<div class="modal fade" id="updateStatusModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+         <div class="modal-content">
+             <div class="modal-header bg-warning">
+                  <h5 class="modal-title">
+                      <i class="bi bi-pencil-fill me-2"></i> Update Status
+                  </h5>
+                  <button type="button" class="btn-close"
+data-bs-dismiss="modal"></button>
+             </div>
+             <div class="modal-body p-4">
+                  <input type="hidden" id="updateStatusResId">
+                  <div class="mb-3">
+                      <label class="form-label fw-semibold small"> New
+Status </label>
+                      <select class="form-select" id="newStatusSelect">
+                           <option value="Pending">     Pending     </option>
+                           <option value="Confirmed">   Confirmed   </option>
+                           <option value="Checked-In"> Checked-In </option>
+                           <option value="Completed">   Completed   </option>
+                           <option value="Cancelled">   Cancelled   </option>
+                      </select>
+                  </div>
+                  <div id="updateStatusError" class="alert alert-danger
+d-none small py-2">
+                      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                      <span id="updateStatusErrorMsg"></span>
+                  </div>
+             </div>
+             <div class="modal-footer">
+                  <button class="btn btn-secondary" data-bs-dismiss="modal">
+Cancel </button>
+                  <button class="btn btn-warning fw-semibold"
+id="saveStatusBtn">
+                      <span id="saveStatusText"> <i class="bi bi-save
+me-1"></i> Save </span>
+                      <span id="saveStatusSpinner" class="d-none">
+                           <span class="spinner-border spinner-border-sm
+me-1"></span>
+                      </span>
+                  </button>
+             </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Cancel Modal -->
+<div class="modal fade" id="adminCancelResModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+         <div class="modal-content">
+              <div class="modal-header bg-danger text-white">
+                  <h5 class="modal-title">
+                       <i class="bi bi-x-circle-fill me-2"></i> Cancel
+Reservation
+                  </h5>
+                  <button type="button" class="btn-close btn-close-white"
+data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body text-center py-4">
+                  <i class="bi bi-exclamation-triangle-fill text-danger"
+style="font-size:2.5rem;"></i>
+                  <p class="mt-3 mb-1"> Cancel booking </p>
+                  <strong class="text-primary"
+id="adminCancelPNR"></strong>?
+                  <p class="text-muted small mt-2">
+                       The passenger will be notified. This cannot be undone.
+                  </p>
+              </div>
+              <div class="modal-footer justify-content-center gap-2">
+                  <button class="btn btn-secondary" data-bs-dismiss="modal">
+Keep Booking </button>
+                  <button class="btn btn-danger fw-semibold"
+id="adminConfirmCancelBtn">
+                       <span id="adminCancelText">
+                           <i class="bi bi-x-circle me-1"></i> Cancel
+                       </span>
+                       <span id="adminCancelSpinner" class="d-none">
+                           <span class="spinner-border spinner-border-sm
+me-1"></span>
+                       </span>
+                  </button>
+              </div>
+         </div>
+    </div>
+</div>
+
+
+<script>
+    let allReservations = [];
+    let filteredRes       = [];
+    let currentPage       = 1;
+    let resToCancel       = null;
+    const PER_PAGE        = 10;
+
+
+    /* ── Helpers ── */
+    function statusBadge(s) {
+           const map = { Confirmed:'success', Pending:'warning',
+Cancelled:'danger',
+                         Completed:'info', 'Checked-In':'primary' };
+           return `<span class="badge bg-${map[s] ||
+'secondary'}">${s}</span>`;
+    }
+    function fmtDateTime(d) {
+           return d ? new Date(d).toLocaleString('en-PH',
+              { month:'short', day:'numeric', year:'numeric',
+hour:'2-digit', minute:'2-digit' }) : '—';
+    }
+    function fmtDate(d) {
+           return d ? new Date(d).toLocaleDateString('en-PH',
+              { month:'short', day:'numeric', year:'numeric' }) : '—';
+    }
+    function getFlightRoute(r) {
+           const f = r.flightId || r.flight || {};
+           return f.origin && f.destination ? `${f.origin} →
+${f.destination}` : '—';
+    }
+    function getFlightNo(r) {
+           const f = r.flightId || r.flight || {};
+           return f.flightNumber || '—';
+    }
+    function getDepDate(r) {
+           const f = r.flightId || r.flight || {};
+           return fmtDate(f.departureDateTime);
+    }
+     /* ── Stats ── */
+     function renderStats(list) {
+         const confirmed    = list.filter(r => r.bookingStatus ===
+'Confirmed');
+         const pending      = list.filter(r => r.bookingStatus ===
+'Pending').length;
+         const cancelled    = list.filter(r => r.bookingStatus ===
+'Cancelled').length;
+         const revenue      = confirmed.reduce((s, r) => s + (r.bill?.total
+|| 0), 0);
+         const avg          = confirmed.length ? revenue / confirmed.length :
+0;
+
+
+         const stats = [
+              { label:'Total',          value: list.length,   color:'primary',
+icon:'bi-journal-check'            },
+              { label:'Confirmed', value: confirmed.length, color:'success',
+icon:'bi-check-circle-fill'      },
+              { label:'Pending',        value: pending,       color:'warning',
+icon:'bi-clock-fill'             },
+              { label:'Cancelled', value: cancelled,          color:'danger',
+icon:'bi-x-circle-fill'            }
+         ];
+         document.getElementById('adminResStatsRow').innerHTML =
+stats.map(s => `
+              <div class="col-6 col-md-3">
+                  <div class="card border-0 shadow-sm p-3 text-center">
+                     <div class="bg-${s.color} bg-opacity-10 rounded p-2
+d-inline-block mb-2 mx-auto">
+                           <i class="bi ${s.icon} fs-5 text-${s.color}"></i>
+                     </div>
+                     <div class="fw-bold fs-5
+text-${s.color}">${s.value}</div>
+                     <div class="text-muted small">${s.label}</div>
+                  </div>
+              </div>`).join('');
+
+
+         document.getElementById('totalRevenue').textContent = '₱' +
+revenue.toLocaleString();
+        document.getElementById('avgBooking').textContent         = '₱' +
+Math.round(avg).toLocaleString();
+        document.getElementById('totalBookings').textContent =
+list.length;
+    }
+
+
+    /* ── Filter + sort ── */
+    function applyFilters() {
+        const q           =
+document.getElementById('adminResSearch').value.toLowerCase();
+        const status =
+document.getElementById('adminResStatusFilter').value;
+        const sort        = document.getElementById('adminResSort').value;
+
+
+        filteredRes = allReservations.filter(r => {
+              const name      = (r.passengerName || (r.firstName||'') + ' ' +
+(r.lastName||'')).toLowerCase();
+              const pnr       = (r.pnr || '').toLowerCase();
+              const route = getFlightRoute(r).toLowerCase();
+              if (q && !pnr.includes(q) && !name.includes(q) &&
+!route.includes(q)) return false;
+              if (status && r.bookingStatus !== status) return false;
+              return true;
+        }).sort((a, b) => {
+              if (sort === 'newest')         return new Date(b.createdAt) - new
+Date(a.createdAt);
+              if (sort === 'oldest')         return new Date(a.createdAt) - new
+Date(b.createdAt);
+              if (sort === 'price-desc') return (b.bill?.total || 0) -
+(a.bill?.total || 0);
+              if (sort === 'price-asc')      return (a.bill?.total || 0) -
+(b.bill?.total || 0);
+              return 0;
+        });
+
+
+        currentPage = 1;
+        renderTable();
+    }
+
+
+    /* ── Render table ── */
+    function renderTable() {
+           const start        = (currentPage - 1) * PER_PAGE;
+           const page         = filteredRes.slice(start, start + PER_PAGE);
+           const total        = filteredRes.length;
+           const totalPg = Math.ceil(total / PER_PAGE);
+
+
+           if (!page.length) {
+               document.getElementById('adminResTableBody').innerHTML =
+                      '<tr><td colspan="9" class="text-center text-muted py-4"><i class="bi bi-inbox me-2"></i>No reservations found.</td></tr>';
+               document.getElementById('adminResPaginationInfo').textContent
+= 'No results';
+               document.getElementById('adminResPagination').innerHTML = '';
+               return;
+           }
+
+
+           document.getElementById('adminResTableBody').innerHTML =
+page.map(r => {
+               const isCancellable = r.bookingStatus !== 'Cancelled' &&
+r.bookingStatus !== 'Completed';
+               const name = r.passengerName || ((r.firstName || '') + ' ' +
+(r.lastName || '')).trim();
+               return `
+               <tr>
+                      <td class="ps-3">
+                         <span class="badge bg-primary-subtle text-primary
+border fw-semibold">
+                               ${r.pnr || r.reservationNumber || '—'}
+                         </span>
+                      </td>
+                      <td class="fw-semibold small">${name}</td>
+                      <td class="small text-muted">${getFlightRoute(r)}</td>
+                      <td class="small text-muted">${getFlightNo(r)}</td>
+                      <td class="small">${getDepDate(r)}</td>
+                      <td>
+                         <span class="badge bg-secondary-subtle text-secondary
+border">
+                               ${r.seat?.code || '—'}
+                         </span>
+                      </td>
+                 <td>${statusBadge(r.bookingStatus)}</td>
+                 <td class="fw-bold text-primary small">
+                      ₱${(r.bill?.total || 0).toLocaleString()}
+                 </td>
+                 <td class="text-end pe-3">
+                      <div class="btn-group btn-group-sm">
+                          <button class="btn btn-outline-primary"
+title="View"
+                                   onclick="openViewAdminRes('${r._id}')">
+                               <i class="bi bi-eye-fill"></i>
+                          </button>
+                          <button class="btn btn-outline-warning"
+title="Update Status"
+
+
+onclick="openUpdateStatus('${r._id}','${r.bookingStatus}')">
+                               <i class="bi bi-pencil-fill"></i>
+                          </button>
+                          <button class="btn btn-outline-danger"
+title="Cancel"
+
+
+onclick="promptAdminCancelRes('${r._id}','${r.pnr || r.reservationNumber
+|| ''}')"
+                                   ${!isCancellable ? 'disabled' : ''}>
+                               <i class="bi bi-x-circle-fill"></i>
+                          </button>
+                      </div>
+                 </td>
+            </tr>`;
+        }).join('');
+
+
+        document.getElementById('adminResPaginationInfo').textContent =
+            `Showing ${start + 1}–${Math.min(start + PER_PAGE, total)} of
+${total} reservations`;
+
+
+        let pgHtml = `<li class="page-item ${currentPage === 1 ?
+'disabled' : ''}">
+            <a class="page-link" href="#" data-pg="${currentPage -
+1}">‹</a></li>`;
+        for (let i = 1; i <= totalPg; i++) {
+              pgHtml += `<li class="page-item ${i === currentPage ? 'active'
+: ''}">
+                    <a class="page-link" href="#"
+data-pg="${i}">${i}</a></li>`;
+          }
+          pgHtml += `<li class="page-item ${currentPage === totalPg ?
+'disabled' : ''}">
+              <a class="page-link" href="#" data-pg="${currentPage +
+1}">›</a></li>`;
+          document.getElementById('adminResPagination').innerHTML = pgHtml;
+    }
+
+
+
+document.getElementById('adminResPagination').addEventListener('click',
+function (e) {
+          e.preventDefault();
+          const a = e.target.closest('a[data-pg]');
+          if (!a) return;
+          const pg   = parseInt(a.dataset.pg);
+          const max = Math.ceil(filteredRes.length / PER_PAGE);
+          if (pg < 1 || pg > max) return;
+          currentPage = pg;
+          renderTable();
+    });
+
+
+    /* ── View modal ── */
+    function openViewAdminRes(id) {
+          const r    = allReservations.find(x => x._id === id);
+          if (!r) return;
+          const f    = r.flightId || r.flight || {};
+          const name = r.passengerName || ((r.firstName || '') + ' ' +
+(r.lastName || '')).trim();
+          document.getElementById('viewAdminResBody').innerHTML = `
+              <div class="row g-3">
+                    <div class="col-md-6">
+                       <div class="card border-0 bg-light p-3 rounded-3
+h-100">
+                            <div class="d-flex justify-content-between
+align-items-start mb-3">
+                                <div>
+                                      <div class="text-muted small"> PNR </div>
+                                      <div class="fw-bold fs-5
+text-primary">${r.pnr || r.reservationNumber || '—'}</div>
+                               </div>
+                               ${statusBadge(r.bookingStatus)}
+                           </div>
+                           <table class="table table-sm mb-0">
+                               <tr><td class="text-muted small border-0
+ps-0">Passenger</td>
+                                      <td class="fw-semibold small
+border-0">${name}</td></tr>
+                               <tr><td class="text-muted small
+ps-0">Passport</td>
+                                      <td class="fw-semibold
+small">${r.passportNumber || r.passport || '—'}</td></tr>
+                               <tr><td class="text-muted small
+ps-0">Email</td>
+                                      <td class="fw-semibold small">${r.email ||
+'—'}</td></tr>
+                               <tr><td class="text-muted small
+ps-0">Seat</td>
+                                      <td class="fw-semibold
+small">${r.seat?.code || '—'}${r.seat?.isPremium ? ' <span class="badge bg-warning text-dark small">Premium</span>' : ''}</td></tr>
+                               <tr><td class="text-muted small
+ps-0">Meal</td>
+                                      <td class="fw-semibold
+small">${r.meal?.label || 'None'}</td></tr>
+                               <tr><td class="text-muted small
+ps-0">Baggage</td>
+                                      <td class="fw-semibold
+small">${r.baggage?.checkedBaggageKg || 0}kg checked</td></tr>
+                               <tr><td class="text-muted small ps-0">Booked
+At</td>
+                                      <td class="fw-semibold
+small">${fmtDateTime(r.createdAt)}</td></tr>
+                           </table>
+                      </div>
+                  </div>
+                  <div class="col-md-6">
+                     <div class="card border-0 bg-light p-3 rounded-3">
+                         <div class="fw-semibold mb-2"> Flight Details
+</div>
+                         <table class="table table-sm mb-3">
+                              <tr><td class="text-muted small border-0
+ps-0">Flight No.</td>
+                                    <td class="fw-semibold small
+border-0">${f.flightNumber || '—'}</td></tr>
+                              <tr><td class="text-muted small
+ps-0">Airline</td>
+                                    <td class="fw-semibold small">${f.airline
+|| '—'}</td></tr>
+                              <tr><td class="text-muted small
+ps-0">Route</td>
+                                    <td class="fw-semibold small">${f.origin
+|| '—'} → ${f.destination || '—'}</td></tr>
+                              <tr><td class="text-muted small
+ps-0">Departure</td>
+                                    <td class="fw-semibold
+small">${fmtDateTime(f.departureDateTime)}</td></tr>
+                              <tr><td class="text-muted small
+ps-0">Arrival</td>
+                                    <td class="fw-semibold
+small">${fmtDateTime(f.arrivalDateTime)}</td></tr>
+                         </table>
+                         <div class="fw-semibold mb-2"> Price Breakdown
+</div>
+                         <div class="d-flex justify-content-between small
+mb-1">
+                              <span class="text-muted">Base Fare</span>
+                              <span>₱${(r.bill?.baseFare ||
+0).toLocaleString()}</span>
+                         </div>
+                         <div class="d-flex justify-content-between small
+mb-1">
+                              <span class="text-muted">Seat Fee</span>
+                              <span>₱${(r.bill?.seatFee ||
+0).toLocaleString()}</span>
+                         </div>
+                           <div class="d-flex justify-content-between small
+mb-1">
+                               <span class="text-muted">Meal</span>
+                               <span>₱${(r.bill?.mealFee ||
+0).toLocaleString()}</span>
+                           </div>
+                           <div class="d-flex justify-content-between small
+mb-1">
+                               <span class="text-muted">Baggage</span>
+                               <span>₱${(r.bill?.baggageFee ||
+0).toLocaleString()}</span>
+                           </div>
+                           <div class="d-flex justify-content-between small
+mb-1">
+                               <span class="text-muted">Tax</span>
+                               <span>₱${(r.bill?.taxes ||
+0).toLocaleString()}</span>
+                           </div>
+                           <div class="d-flex justify-content-between fw-bold
+border-top pt-2 mt-1">
+                               <span>Total</span>
+                               <span class="text-primary">₱${(r.bill?.total
+|| 0).toLocaleString()}</span>
+                           </div>
+                      </div>
+                  </div>
+               </div>`;
+         new
+bootstrap.Modal(document.getElementById('viewAdminResModal')).show();
+    }
+
+
+    /* ── Update status ── */
+    function openUpdateStatus(id, currentStatus) {
+         document.getElementById('updateStatusResId').value = id;
+         document.getElementById('newStatusSelect').value        =
+currentStatus;
+
+
+document.getElementById('updateStatusError').classList.add('d-none');
+         new
+bootstrap.Modal(document.getElementById('updateStatusModal')).show();
+    }
+
+
+    document.getElementById('saveStatusBtn').addEventListener('click',
+async function () {
+        const id          = document.getElementById('updateStatusResId').value;
+        const status = document.getElementById('newStatusSelect').value;
+        const errDiv = document.getElementById('updateStatusError');
+        const errMsg = document.getElementById('updateStatusErrorMsg');
+        errDiv.classList.add('d-none');
+
+
+        document.getElementById('saveStatusText').classList.add('d-none');
+
+
+document.getElementById('saveStatusSpinner').classList.remove('d-none');
+        this.disabled = true;
+
+
+        // Determine correct endpoint based on target status
+        let endpoint, method;
+        if (status === 'Confirmed') {
+            endpoint = `/api/reservations/${id}/confirm`;
+            method        = 'PATCH';
+        } else if (status === 'Cancelled') {
+            endpoint = `/api/reservations/${id}/cancel`;
+            method        = 'PATCH';
+        } else if (status === 'Checked-In') {
+            endpoint = `/api/reservations/${id}/check-in`;
+            method        = 'PATCH';
+        } else {
+            // Generic payment status update for other statuses
+            endpoint = `/api/reservations/${id}/payment-status`;
+            method        = 'PATCH';
+        }
+
+
+        try {
+            const res       = await fetch(endpoint, {
+                  method,
+                  headers: { 'Content-Type': 'application/json' },
+                  body:       JSON.stringify({ paymentStatus: status })
+            });
+            const data = await res.json();
+                if (data.success) {
+                    // Update in-memory
+                    const idx = allReservations.findIndex(r => r._id === id);
+                    if (idx !== -1) allReservations[idx].bookingStatus =
+status;
+
+
+bootstrap.Modal.getInstance(document.getElementById('updateStatusModal')).
+hide();
+                    renderStats(allReservations);
+                    applyFilters();
+                    showToast('Reservation status updated.', 'success');
+                } else {
+                    errMsg.textContent = data.message || 'Could not update status.';
+                    errDiv.classList.remove('d-none');
+                }
+          } catch (_) {
+                errMsg.textContent = 'Network error. Please try again.';
+                errDiv.classList.remove('d-none');
+          } finally {
+
+
+document.getElementById('saveStatusText').classList.remove('d-none');
+
+
+document.getElementById('saveStatusSpinner').classList.add('d-none');
+                this.disabled = false;
+          }
+    });
+
+
+    /* ── Cancel (AJAX — no page refresh) ── */
+    function promptAdminCancelRes(id, pnr) {
+          resToCancel = id;
+          document.getElementById('adminCancelPNR').textContent = pnr;
+          new
+bootstrap.Modal(document.getElementById('adminCancelResModal')).show();
+    }
+
+
+
+document.getElementById('adminConfirmCancelBtn').addEventListener('click',
+async function () {
+          if (!resToCancel) return;
+document.getElementById('adminCancelText').classList.add('d-none');
+
+
+document.getElementById('adminCancelSpinner').classList.remove('d-none');
+          this.disabled = true;
+
+
+          try {
+              const res     = await
+fetch(`/api/reservations/${resToCancel}/cancel`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' }
+              });
+              const data = await res.json();
+
+
+              if (data.success) {
+                    const idx = allReservations.findIndex(r => r._id ===
+resToCancel);
+                    if (idx !== -1) allReservations[idx].bookingStatus =
+'Cancelled';
+
+
+bootstrap.Modal.getInstance(document.getElementById('adminCancelResModal')
+).hide();
+                    renderStats(allReservations);
+                    applyFilters();
+                    showToast('Reservation cancelled.', 'warning');
+              } else {
+                    showToast(data.message || 'Could not cancel.', 'danger');
+              }
+          } catch (_) {
+              showToast('Network error. Please try again.', 'danger');
+          } finally {
+
+
+document.getElementById('adminCancelText').classList.remove('d-none');
+
+
+document.getElementById('adminCancelSpinner').classList.add('d-none');
+              this.disabled = false;
+              resToCancel      = null;
+          }
+    });
+    /* ── Export CSV (simulated) ── */
+    document.getElementById('exportBtn').addEventListener('click',
+function () {
+          const rows = [
+
+
+['PNR','Passenger','Route','Flight','Date','Seat','Status','Total'],
+               ...filteredRes.map(r => [
+                    r.pnr || r.reservationNumber || '',
+                    r.passengerName || ((r.firstName||'') + ' ' +
+(r.lastName||'')).trim(),
+                    getFlightRoute(r),
+                    getFlightNo(r),
+                    getDepDate(r),
+                    r.seat?.code || '',
+                    r.bookingStatus,
+                    r.bill?.total || 0
+               ])
+          ];
+          const csv    = rows.map(row => row.map(v =>
+`"${v}"`).join(',')).join('\n');
+          const blob = new Blob([csv], { type:'text/csv' });
+          const a      = document.createElement('a');
+          a.href       = URL.createObjectURL(blob);
+          a.download = `reservations-${new
+Date().toISOString().split('T')[0]}.csv`;
+          a.click();
+          showToast('CSV exported successfully.', 'success');
+    });
+
+
+    /* ── Load reservations ── */
+    async function loadAdminReservations() {
+          try {
+               const res    = await fetch('/api/reservations/admin/all');
+               const data = await res.json();
+               if (!data.success) throw new Error(data.message);
+               allReservations = data.reservations || [];
+               renderStats(allReservations);
+               applyFilters();
+          } catch (err) {
+               document.getElementById('adminResTableBody').innerHTML =
+                    `<tr><td colspan="9" class="text-center text-danger py-4">
+                       <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                       ${err.message || 'Failed to load reservations.'}
+                    </td></tr>`;
+            }
+      }
+
+
+      /* ── Event listeners ── */
+      document.getElementById('adminResSearch').addEventListener('input',
+applyFilters);
+
+
+document.getElementById('adminResStatusFilter').addEventListener('change',
+applyFilters);
+      document.getElementById('adminResSort').addEventListener('change',
+applyFilters);
+
+
+document.getElementById('clearAdminResFilters').addEventListener('click',
+function () {
+            document.getElementById('adminResSearch').value = '';
+            document.getElementById('adminResStatusFilter').value = '';
+            applyFilters();
+      });
+
+
+      /* ── Init ── */
+      loadAdminReservations();
+</script>
+
+

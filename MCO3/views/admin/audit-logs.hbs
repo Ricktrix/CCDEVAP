@@ -1,0 +1,169 @@
+<section class="bg-light min-vh-100 py-4">
+    <div class="container-fluid px-4">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h4 class="fw-bold mb-0">
+                    <i class="bi bi-journal-text text-primary me-2"></i> Audit Trail
+                </h4>
+                <p class="text-muted small mb-0"> A record of every important action taken across the system </p>
+            </div>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body p-3">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control" id="auditSearch" placeholder="Search username, activity, details…">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="auditActivityFilter">
+                            <option value=""> All Activities </option>
+                            <option value="User Registration">User Registration</option>
+                            <option value="User Login">User Login</option>
+                            <option value="User Logout">User Logout</option>
+                            <option value="Flight Creation">Flight Creation</option>
+                            <option value="Flight Update">Flight Update</option>
+                            <option value="Flight Deletion">Flight Deletion</option>
+                            <option value="Reservation Creation">Reservation Creation</option>
+                            <option value="Reservation Cancellation">Reservation Cancellation</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <button class="btn btn-outline-secondary w-100" id="clearAuditFilters">
+                            <i class="bi bi-x-circle me-1"></i> Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Log table -->
+        <div class="card border-0 shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date &amp; Time</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Activity</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditLogTableBody">
+                        <tr><td colspan="5" class="text-center text-muted py-4">Loading audit logs…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+                <span class="text-muted small" id="auditPaginationInfo"></span>
+                <nav><ul class="pagination pagination-sm mb-0" id="auditPagination"></ul></nav>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    let allLogs = [];
+    let currentPage = 1;
+    const PER_PAGE = 20;
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text == null ? '' : String(text);
+        return div.innerHTML;
+    }
+
+    function activityBadgeClass(activity) {
+        if (activity.includes('Deletion') || activity.includes('Cancellation')) return 'bg-danger';
+        if (activity.includes('Creation') || activity.includes('Registration')) return 'bg-success';
+        if (activity.includes('Update')) return 'bg-warning text-dark';
+        if (activity.includes('Login') || activity.includes('Logout')) return 'bg-secondary';
+        return 'bg-primary';
+    }
+
+    function getFilteredLogs() {
+        const search = document.getElementById('auditSearch').value.trim().toLowerCase();
+        const activity = document.getElementById('auditActivityFilter').value;
+        return allLogs.filter(function (log) {
+            const matchesSearch = !search ||
+                (log.username || '').toLowerCase().includes(search) ||
+                (log.activity || '').toLowerCase().includes(search) ||
+                (log.details || '').toLowerCase().includes(search);
+            const matchesActivity = !activity || log.activity === activity;
+            return matchesSearch && matchesActivity;
+        });
+    }
+
+    function renderTable() {
+        const filtered = getFilteredLogs();
+        const start = (currentPage - 1) * PER_PAGE;
+        const page = filtered.slice(start, start + PER_PAGE);
+        const tbody = document.getElementById('auditLogTableBody');
+
+        if (!page.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4"><i class="bi bi-inbox me-2"></i>No audit log entries found.</td></tr>';
+        } else {
+            tbody.innerHTML = page.map(function (log) {
+                const when = new Date(log.createdAt).toLocaleString('en-PH', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                return '<tr>' +
+                    '<td class="small text-muted">' + escapeHtml(when) + '</td>' +
+                    '<td class="fw-semibold small">' + escapeHtml(log.username) + '</td>' +
+                    '<td><span class="badge bg-light text-dark border">' + escapeHtml(log.userRole) + '</span></td>' +
+                    '<td><span class="badge ' + activityBadgeClass(log.activity) + '">' + escapeHtml(log.activity) + '</span></td>' +
+                    '<td class="small text-muted">' + escapeHtml(log.details) + '</td>' +
+                    '</tr>';
+            }).join('');
+        }
+
+        const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+        document.getElementById('auditPaginationInfo').textContent =
+            filtered.length ? `Showing ${start + 1}-${Math.min(start + PER_PAGE, filtered.length)} of ${filtered.length}` : 'No results';
+
+        const paginationEl = document.getElementById('auditPagination');
+        let paginationHtml = '';
+        for (let i = 1; i <= totalPages; i++) {
+            paginationHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}"><button class="page-link" data-page="${i}">${i}</button></li>`;
+        }
+        paginationEl.innerHTML = paginationHtml;
+        paginationEl.querySelectorAll('button[data-page]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                currentPage = parseInt(this.dataset.page, 10);
+                renderTable();
+            });
+        });
+    }
+
+    async function loadAuditLogs() {
+        try {
+            const res = await fetch('/api/audit-logs?limit=500');
+            const data = await res.json();
+            if (!data.success) {
+                showToast('Failed to load audit logs.', 'danger');
+                return;
+            }
+            allLogs = data.logs || [];
+            renderTable();
+        } catch (err) {
+            console.error('Failed to load audit logs:', err);
+            document.getElementById('auditLogTableBody').innerHTML =
+                '<tr><td colspan="5" class="text-center text-danger py-4">Failed to load audit logs.</td></tr>';
+        }
+    }
+
+    document.getElementById('auditSearch').addEventListener('input', function () { currentPage = 1; renderTable(); });
+    document.getElementById('auditActivityFilter').addEventListener('change', function () { currentPage = 1; renderTable(); });
+    document.getElementById('clearAuditFilters').addEventListener('click', function () {
+        document.getElementById('auditSearch').value = '';
+        document.getElementById('auditActivityFilter').value = '';
+        currentPage = 1;
+        renderTable();
+    });
+
+    document.addEventListener('DOMContentLoaded', loadAuditLogs);
+</script>
