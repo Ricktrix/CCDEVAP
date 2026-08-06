@@ -25,6 +25,7 @@ const userRoutes        = require('./routes/userRoutes');
 const flightRoutes      = require('./routes/flightRoutes');
 const reservationRoutes = require('./routes/reservationRoutes');
 const bookingRoutes     = require('./routes/bookingRoutes');
+const auditRoutes       = require('./routes/auditRoutes');
 
 /* ── Models (kept for future seeding / direct queries if needed) ── */
 const User    = require('./models/User');
@@ -315,6 +316,7 @@ app.use('/api/users',        userRoutes);
 app.use('/api/flights',      flightRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/bookings',     bookingRoutes);
+app.use('/api/audit',        auditRoutes);
 
 /* ── Error middleware (must be last) ── */
 app.use(notFound);
